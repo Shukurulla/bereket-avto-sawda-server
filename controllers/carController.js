@@ -135,7 +135,7 @@ exports.createCar = async (req, res) => {
     const carData = {
       ...req.body,
       contact: req.body.contact ? JSON.parse(req.body.contact) : {},
-      gasEquipment: req.body.gasEquipment ? JSON.parse(req.body.gasEquipment) : {},
+      fuelType: req.body.fuelType ? JSON.parse(req.body.fuelType) : [],
       tinting: req.body.tinting ? JSON.parse(req.body.tinting) : {},
       sunProtection: req.body.sunProtection ? JSON.parse(req.body.sunProtection) : {},
       owner: req.user.id,
@@ -186,8 +186,8 @@ exports.updateCar = async (req, res) => {
     if (req.body.contact) {
       updateData.contact = JSON.parse(req.body.contact);
     }
-    if (req.body.gasEquipment) {
-      updateData.gasEquipment = JSON.parse(req.body.gasEquipment);
+    if (req.body.fuelType) {
+      updateData.fuelType = JSON.parse(req.body.fuelType);
     }
     if (req.body.tinting) {
       updateData.tinting = JSON.parse(req.body.tinting);

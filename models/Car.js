@@ -34,11 +34,10 @@ const carSchema = new mongoose.Schema({
     enum: ['automatic', 'manual'],
     required: [true, 'Korobka turi kiritilishi shart']
   },
-  fuelType: {
+  fuelType: [{
     type: String,
-    enum: ['petrol', 'methane', 'propane', 'electric'],
-    required: [true, 'Yoqilgi turi kiritilishi shart']
-  },
+    enum: ['petrol', 'methane', 'propane', 'electric']
+  }],
   engineVolume: {
     type: Number,
     min: 0
@@ -47,20 +46,12 @@ const carSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  location: {
+    type: String,
+    trim: true
+  },
 
   // Qo'shimcha jihozlar
-  gasEquipment: {
-    type: {
-      type: String,
-      enum: ['none', 'methane', 'propane'],
-      default: 'none'
-    },
-    generation: {
-      type: Number,
-      min: 1,
-      max: 6
-    }
-  },
   hasCovers: {
     type: Boolean,
     default: false
@@ -83,11 +74,14 @@ const carSchema = new mongoose.Schema({
 
   // Quyosh himoyasi
   sunProtection: {
-    has: {
+    hasSunProtection: {
       type: Boolean,
       default: false
     },
-    location: String
+    location: {
+      type: String,
+      enum: ['none', 'front', 'full']
+    }
   },
 
   // Holati
