@@ -7,7 +7,8 @@ const {
   deleteCar,
   saveCar,
   unsaveCar,
-  makePremium
+  makePremium,
+  getSimilarCars
 } = require('../controllers/carController');
 const { protect, adminOnly } = require('../middleware/auth');
 const upload = require('../middleware/upload');
@@ -27,6 +28,7 @@ router.route('/:id/save')
   .post(protect, saveCar)
   .delete(protect, unsaveCar);
 
+router.get('/:id/similar', getSimilarCars);
 router.put('/:id/premium', protect, adminOnly, makePremium);
 
 module.exports = router;

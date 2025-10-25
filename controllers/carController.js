@@ -220,6 +220,10 @@ exports.getCar = async (req, res) => {
     // Premium muddatini tekshirish
     await car.checkPremiumExpiry();
 
+    // Ko'rilganlar sonini oshirish (views increment)
+    car.views = (car.views || 0) + 1;
+    await car.save();
+
     res.status(200).json({
       success: true,
       data: car,
@@ -470,6 +474,54 @@ exports.makePremium = async (req, res) => {
     res.status(200).json({
       success: true,
       data: car,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// @desc    O'xshash avtomobillarni olish
+// @route   GET /api/cars/:id/similar
+// @access  Public
+exports.getSimilarCars = async (req, res) => {
+  try {
+    const car = await Car.findById(req.params.id);
+
+    if (!car) {
+      return res.status(404).json({
+        success: false,
+        message: "Avtomobil topilmadi",
+      });
+    }
+
+    // O'xshash mashinalarni topish:
+    // 1. Bir xil marka
+    // 2. Narx ±30% oralig'ida
+    // 3. Joriy mashinani o'zi emas
+    const priceRange = car.price ? car.price * 0.3 : 50000000;
+    const minPrice = car.price ? car.price - priceRange : 0;
+    const maxPrice = car.price ? car.price + priceRange : 999999999;
+
+    const similarCars = await Car.find({
+      _id: { $ne: car._id }, // O'zini chiqarib tashlash
+      brand: car.brand,
+      status: 'sale', // Faqat sotuvdagi mashinalar
+      $or: [
+        { price: { $gte: minPrice, $lte: maxPrice } },
+        { price: null } // Narxi ko'rsatilmagan mashinalar ham
+      ]
+    })
+      .populate("owner", "name phone")
+      .sort({ isPremium: -1, createdAt: -1 })
+      .limit(6); // Faqat 6 ta
+
+    res.status(200).json({
+      success: true,
+      count: similarCars.length,
+      data: similarCars,
     });
   } catch (error) {
     res.status(500).json({
