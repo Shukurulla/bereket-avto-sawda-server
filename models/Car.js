@@ -83,7 +83,7 @@ const carSchema = new mongoose.Schema({
   // Yoqilg'i turi
   fuelType: {
     type: String,
-    enum: ['petrol', 'diesel', 'electric', 'hybrid', 'hybrid_plugin'],
+    enum: ['petrol', 'diesel', 'electric', 'hybrid', 'hybrid_plugin', 'methane', 'propane'],
     required: [true, 'Yoqilg\'i turi kiritilishi shart']
   },
 
