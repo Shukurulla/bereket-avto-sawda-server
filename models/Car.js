@@ -135,7 +135,7 @@ const carSchema = new mongoose.Schema({
       type: Boolean,
       default: false
     },
-    type: {
+    gasType: {
       type: String,
       enum: ['none', 'methane', 'propane']
     },
