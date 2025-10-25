@@ -20,7 +20,7 @@ exports.register = async (req, res) => {
     if (userExists) {
       return res.status(400).json({
         success: false,
-        message: 'Bu email allaqachon ro\'yxatdan o\'tgan'
+        message: 'Бул email дизимге әллақашан жазылған'
       });
     }
 
@@ -65,7 +65,7 @@ exports.login = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Email va parol kiritilishi shart'
+        message: 'Email ҳәм парол киритилиўи шәрт'
       });
     }
 
@@ -75,7 +75,7 @@ exports.login = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Email yoki parol noto\'g\'ri'
+        message: 'Email я болмаса парол дурыс емес'
       });
     }
 
@@ -85,7 +85,7 @@ exports.login = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({
         success: false,
-        message: 'Email yoki parol noto\'g\'ri'
+        message: 'Email я болмаса парол дурыс емес'
       });
     }
 
@@ -143,7 +143,7 @@ exports.updateProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'Foydalanuvchi topilmadi'
+        message: 'Пайдаланыўшы табылмады'
       });
     }
 
@@ -159,7 +159,7 @@ exports.updateProfile = async (req, res) => {
       if (!isMatch) {
         return res.status(401).json({
           success: false,
-          message: 'Joriy parol noto\'g\'ri'
+          message: 'Ҳәзирги парол дурыс емес'
         });
       }
 

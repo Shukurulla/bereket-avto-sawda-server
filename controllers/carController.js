@@ -213,7 +213,7 @@ exports.getCar = async (req, res) => {
     if (!car) {
       return res.status(404).json({
         success: false,
-        message: "Avtomobil topilmadi",
+        message: "Автомобил табылмады",
       });
     }
 
@@ -249,7 +249,7 @@ exports.createCar = async (req, res) => {
     if (images.length === 0) {
       return res.status(400).json({
         success: false,
-        message: "Kamida bitta rasm yuklash kerak",
+        message: "Кеминде бир сүўрет жүклеў керек",
       });
     }
 
@@ -298,7 +298,7 @@ exports.updateCar = async (req, res) => {
     if (!car) {
       return res.status(404).json({
         success: false,
-        message: "Avtomobil topilmadi",
+        message: "Автомобил табылмады",
       });
     }
 
@@ -362,7 +362,7 @@ exports.deleteCar = async (req, res) => {
     if (!car) {
       return res.status(404).json({
         success: false,
-        message: "Avtomobil topilmadi",
+        message: "Автомобил табылмады",
       });
     }
 
@@ -401,7 +401,7 @@ exports.saveCar = async (req, res) => {
     if (!car) {
       return res.status(404).json({
         success: false,
-        message: "Avtomobil topilmadi",
+        message: "Автомобил табылмады",
       });
     }
 
@@ -409,7 +409,7 @@ exports.saveCar = async (req, res) => {
     if (user.savedCars.includes(carId)) {
       return res.status(400).json({
         success: false,
-        message: "Bu avtomobil allaqachon saqlangan",
+        message: "Бул автомобил әллақашан сақланған",
       });
     }
 
@@ -418,7 +418,7 @@ exports.saveCar = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Avtomobil saqlandi",
+      message: "Автомобил сақланды",
     });
   } catch (error) {
     res.status(500).json({
@@ -441,7 +441,7 @@ exports.unsaveCar = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Avtomobil saqlanganlardan o'chirildi",
+      message: "Автомобил сақланғанлардан өширилди",
     });
   } catch (error) {
     res.status(500).json({
@@ -463,7 +463,7 @@ exports.makePremium = async (req, res) => {
     if (!car) {
       return res.status(404).json({
         success: false,
-        message: "Avtomobil topilmadi",
+        message: "Автомобил табылмады",
       });
     }
 
@@ -493,7 +493,7 @@ exports.getSimilarCars = async (req, res) => {
     if (!car) {
       return res.status(404).json({
         success: false,
-        message: "Avtomobil topilmadi",
+        message: "Автомобил табылмады",
       });
     }
 

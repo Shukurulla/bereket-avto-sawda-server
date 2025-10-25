@@ -30,7 +30,7 @@ exports.getBanner = async (req, res) => {
     if (!banner) {
       return res.status(404).json({
         success: false,
-        message: 'Banner topilmadi'
+        message: 'Баннер табылмады'
       });
     }
 
@@ -80,7 +80,7 @@ exports.updateBanner = async (req, res) => {
     if (!banner) {
       return res.status(404).json({
         success: false,
-        message: 'Banner topilmadi'
+        message: 'Баннер табылмады'
       });
     }
 
@@ -116,7 +116,7 @@ exports.deleteBanner = async (req, res) => {
     if (!banner) {
       return res.status(404).json({
         success: false,
-        message: 'Banner topilmadi'
+        message: 'Баннер табылмады'
       });
     }
 
@@ -124,7 +124,7 @@ exports.deleteBanner = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Banner o\'chirildi'
+      message: 'Баннер өширилди'
     });
   } catch (error) {
     res.status(500).json({
@@ -150,7 +150,7 @@ exports.updateBannerOrder = async (req, res) => {
     if (!banner) {
       return res.status(404).json({
         success: false,
-        message: 'Banner topilmadi'
+        message: 'Баннер табылмады'
       });
     }
 
@@ -176,7 +176,7 @@ exports.toggleBanner = async (req, res) => {
     if (!banner) {
       return res.status(404).json({
         success: false,
-        message: 'Banner topilmadi'
+        message: 'Баннер табылмады'
       });
     }
 
