@@ -370,22 +370,12 @@ const carSchema = new mongoose.Schema({
   },
 
   // ============================================
-  // JOYLASHUV
+  // JOYLASHUV / MANZIL
   // ============================================
 
   location: {
-    city: {
-      type: String,
-      trim: true
-    },
-    region: {
-      type: String,
-      trim: true
-    },
-    address: {
-      type: String,
-      trim: true
-    }
+    type: String,
+    trim: true
   },
 
   // ============================================

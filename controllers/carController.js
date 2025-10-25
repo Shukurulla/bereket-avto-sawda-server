@@ -262,7 +262,7 @@ exports.createCar = async (req, res) => {
 
     // Parse complex/nested fields if they exist
     if (req.body.contact) carData.contact = JSON.parse(req.body.contact);
-    if (req.body.location) carData.location = JSON.parse(req.body.location);
+    // location is now a simple string, no need to parse
     if (req.body.tinting) carData.tinting = JSON.parse(req.body.tinting);
     if (req.body.sunProtection) carData.sunProtection = JSON.parse(req.body.sunProtection);
     if (req.body.gasEquipment) carData.gasEquipment = JSON.parse(req.body.gasEquipment);
