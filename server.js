@@ -33,7 +33,10 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", origin);
     res.header("Access-Control-Allow-Credentials", "true");
   } else if (origin) {
-    console.log(`CORS blocked: ${origin}`);
+    // Development va test uchun vaqtinchalik barcha originlarga ruxsat
+    res.header("Access-Control-Allow-Origin", origin);
+    res.header("Access-Control-Allow-Credentials", "true");
+    console.log(`CORS warning - allowed origin: ${origin}`);
   }
 
   res.header(
@@ -43,6 +46,12 @@ app.use((req, res, next) => {
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+
+  // Expose headers for client
+  res.header(
+    "Access-Control-Expose-Headers",
+    "Content-Length, Content-Range"
   );
 
   if (req.method === "OPTIONS") {
