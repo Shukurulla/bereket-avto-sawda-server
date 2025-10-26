@@ -330,11 +330,22 @@ exports.updateCar = async (req, res) => {
     if (req.body.cameras) updateData.cameras = JSON.parse(req.body.cameras);
     if (req.body.safetyFeatures) updateData.safetyFeatures = JSON.parse(req.body.safetyFeatures);
 
+    // Rasmlarni boshqarish
+    let finalImages = [...car.images];
+
+    // Agar existingImages yuborilgan bo'lsa (o'chirilmaganlar ro'yxati)
+    if (req.body.existingImages) {
+      const existingImages = JSON.parse(req.body.existingImages);
+      finalImages = existingImages;
+    }
+
     // Yangi rasmlar qo'shilsa
     if (req.files && req.files.length > 0) {
       const newImages = req.files.map((file) => `/uploads/${file.filename}`);
-      updateData.images = [...car.images, ...newImages];
+      finalImages = [...finalImages, ...newImages];
     }
+
+    updateData.images = finalImages;
 
     car = await Car.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
