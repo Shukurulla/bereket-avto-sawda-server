@@ -7,6 +7,8 @@ const User = require("../models/User");
 exports.getCars = async (req, res) => {
   try {
     const {
+      // Qidiruv
+      search,
       // Asosiy ma'lumotlar
       brand,
       model,
@@ -83,9 +85,25 @@ exports.getCars = async (req, res) => {
     // Filter yaratish
     let filter = {};
 
+    // Search - brand va model'da qidirish
+    if (search) {
+      filter.$or = [
+        { brand: new RegExp(search, "i") },
+        { model: new RegExp(search, "i") },
+        // Brand va model birgalikda qidirish
+        { $expr: {
+          $regexMatch: {
+            input: { $concat: ["$brand", " ", "$model"] },
+            regex: search,
+            options: "i"
+          }
+        }}
+      ];
+    }
+
     // Asosiy ma'lumotlar
-    if (brand) filter.brand = new RegExp(brand, "i");
-    if (model) filter.model = new RegExp(model, "i");
+    if (brand && !search) filter.brand = new RegExp(brand, "i");
+    if (model && !search) filter.model = new RegExp(model, "i");
     if (year) filter.year = Number(year);
     if (color) filter.color = new RegExp(color, "i");
 
