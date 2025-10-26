@@ -1,26 +1,28 @@
-const TelegramBot = require('node-telegram-bot-api');
-const path = require('path');
-const fs = require('fs');
+const TelegramBot = require("node-telegram-bot-api");
+const path = require("path");
+const fs = require("fs");
+const dotenv = require("dotenv");
+dotenv.config();
 
 // Bot tokenini .env dan olish
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID || '@avto_satiw';
+const CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID || "@avto_satiw";
 
 let bot = null;
 
 // Bot'ni ishga tushirish
 const initBot = () => {
   if (!BOT_TOKEN) {
-    console.log('⚠️  TELEGRAM_BOT_TOKEN topilmadi. Telegram bot o\'chirilgan.');
+    console.log("⚠️  TELEGRAM_BOT_TOKEN topilmadi. Telegram bot o'chirilgan.");
     return null;
   }
 
   try {
     bot = new TelegramBot(BOT_TOKEN, { polling: false });
-    console.log('✅ Telegram bot ishga tushdi');
+    console.log("✅ Telegram bot ishga tushdi");
     return bot;
   } catch (error) {
-    console.error('❌ Telegram bot xatolik:', error.message);
+    console.error("❌ Telegram bot xatolik:", error.message);
     return null;
   }
 };
@@ -28,24 +30,24 @@ const initBot = () => {
 // Rasmni yuklash
 const uploadPhoto = async (photoPath) => {
   try {
-    const fullPath = path.join(__dirname, '..', photoPath);
+    const fullPath = path.join(__dirname, "..", photoPath);
 
     // Faylning mavjudligini tekshirish
     if (!fs.existsSync(fullPath)) {
-      console.error('Rasm topilmadi:', fullPath);
+      console.error("Rasm topilmadi:", fullPath);
       return null;
     }
 
     return fullPath;
   } catch (error) {
-    console.error('Rasm yuklashda xatolik:', error);
+    console.error("Rasm yuklashda xatolik:", error);
     return null;
   }
 };
 
 // Car ma'lumotlarini formatlash
 const formatCarMessage = (car) => {
-  const baseUrl = process.env.FRONTEND_URL || 'https://avto.kerek.uz';
+  const baseUrl = process.env.FRONTEND_URL || "https://avto.kerek.uz";
   const carUrl = `${baseUrl}/car/${car._id}`;
 
   let message = `🚗 *${car.brand} ${car.model}*\n`;
@@ -65,45 +67,47 @@ const formatCarMessage = (car) => {
   // Texnik xususiyatlar
   if (car.transmission) {
     const transmissionMap = {
-      automatic: 'Avtomat',
-      manual: 'Mexanika',
-      robot: 'Robot',
-      cvt: 'CVT'
+      automatic: "Avtomat",
+      manual: "Mexanika",
+      robot: "Robot",
+      cvt: "CVT",
     };
-    message += `⚙️ Korobka: *${transmissionMap[car.transmission] || car.transmission}*\n`;
+    message += `⚙️ Korobka: *${
+      transmissionMap[car.transmission] || car.transmission
+    }*\n`;
   }
 
   if (car.fuelType && car.fuelType.length > 0) {
     const fuelMap = {
-      petrol: 'Benzin',
-      diesel: 'Dizel',
-      electric: 'Elektr',
-      hybrid: 'Gibrid',
-      hybrid_plugin: 'Plugin-Gibrid',
-      methane: 'Metan',
-      propane: 'Propan'
+      petrol: "Benzin",
+      diesel: "Dizel",
+      electric: "Elektr",
+      hybrid: "Gibrid",
+      hybrid_plugin: "Plugin-Gibrid",
+      methane: "Metan",
+      propane: "Propan",
     };
-    const fuels = car.fuelType.map(f => fuelMap[f] || f).join(', ');
+    const fuels = car.fuelType.map((f) => fuelMap[f] || f).join(", ");
     message += `⚡ Yoqilg'i: *${fuels}*\n`;
   }
 
-  if (car.engineVolume && !car.fuelType?.includes('electric')) {
+  if (car.engineVolume && !car.fuelType?.includes("electric")) {
     message += `🔧 Dvigatel: *${car.engineVolume}L*\n`;
   }
 
   if (car.bodyType) {
     const bodyTypeMap = {
-      sedan: 'Sedan',
-      suv: 'SUV',
-      crossover: 'Krossover',
-      hatchback: 'Xetchbek',
-      coupe: 'Kupe',
-      wagon: 'Universal',
-      minivan: 'Minivan',
-      pickup: 'Pikap',
-      van: 'Furgon',
-      convertible: 'Kabriolet',
-      other: 'Boshqa'
+      sedan: "Sedan",
+      suv: "SUV",
+      crossover: "Krossover",
+      hatchback: "Xetchbek",
+      coupe: "Kupe",
+      wagon: "Universal",
+      minivan: "Minivan",
+      pickup: "Pikap",
+      van: "Furgon",
+      convertible: "Kabriolet",
+      other: "Boshqa",
     };
     message += `🚙 Kuzov: ${bodyTypeMap[car.bodyType] || car.bodyType}\n`;
   }
@@ -116,19 +120,21 @@ const formatCarMessage = (car) => {
   message += `\n`;
 
   if (car.location) {
-    if (typeof car.location === 'string') {
+    if (typeof car.location === "string") {
       message += `📍 Manzil: *${car.location}*\n`;
     } else if (car.location.city || car.location.region) {
-      const location = [car.location.city, car.location.region].filter(Boolean).join(', ');
+      const location = [car.location.city, car.location.region]
+        .filter(Boolean)
+        .join(", ");
       message += `📍 Manzil: *${location}*\n`;
     }
   }
 
   if (car.condition) {
     const conditionMap = {
-      new: 'Yangi',
-      good: 'Yaxshi',
-      normal: 'O\'rtacha'
+      new: "Yangi",
+      good: "Yaxshi",
+      normal: "O'rtacha",
     };
     message += `✨ Holati: ${conditionMap[car.condition] || car.condition}\n`;
   }
@@ -148,7 +154,7 @@ const formatCarMessage = (car) => {
 // Kanalga post yuborish
 const postCarToChannel = async (car) => {
   if (!bot) {
-    console.log('Telegram bot ishlamayapti');
+    console.log("Telegram bot ishlamayapti");
     return null;
   }
 
@@ -166,10 +172,10 @@ const postCarToChannel = async (car) => {
         const photoPath = await uploadPhoto(imagesToSend[i]);
         if (photoPath) {
           photos.push({
-            type: 'photo',
+            type: "photo",
             media: photoPath,
-            caption: i === 0 ? message : '',
-            parse_mode: i === 0 ? 'Markdown' : undefined
+            caption: i === 0 ? message : "",
+            parse_mode: i === 0 ? "Markdown" : undefined,
           });
         }
       }
@@ -183,14 +189,13 @@ const postCarToChannel = async (car) => {
 
     // Agar rasm bo'lmasa, faqat matn yuborish
     const result = await bot.sendMessage(CHANNEL_ID, message, {
-      parse_mode: 'Markdown',
-      disable_web_page_preview: false
+      parse_mode: "Markdown",
+      disable_web_page_preview: false,
     });
     console.log(`✅ Telegram'ga yuklandi (rasmsiz): ${car.brand} ${car.model}`);
     return result.message_id;
-
   } catch (error) {
-    console.error('Telegram\'ga yuklashda xatolik:', error.message);
+    console.error("Telegram'ga yuklashda xatolik:", error.message);
     return null;
   }
 };
@@ -208,13 +213,13 @@ const updateCarPost = async (car) => {
     await bot.editMessageCaption(message, {
       chat_id: CHANNEL_ID,
       message_id: car.telegramPostId,
-      parse_mode: 'Markdown'
+      parse_mode: "Markdown",
     });
 
     console.log(`✅ Telegram post yangilandi: ${car.brand} ${car.model}`);
     return car.telegramPostId;
   } catch (error) {
-    console.error('Telegram postni yangilashda xatolik:', error.message);
+    console.error("Telegram postni yangilashda xatolik:", error.message);
     return null;
   }
 };
@@ -230,7 +235,7 @@ const deleteCarPost = async (telegramPostId) => {
     console.log(`✅ Telegram post o'chirildi: ${telegramPostId}`);
     return true;
   } catch (error) {
-    console.error('Telegram postni o\'chirishda xatolik:', error.message);
+    console.error("Telegram postni o'chirishda xatolik:", error.message);
     return false;
   }
 };
@@ -238,7 +243,7 @@ const deleteCarPost = async (telegramPostId) => {
 // Bot'ni test qilish
 const testBot = async () => {
   if (!bot) {
-    console.log('❌ Bot mavjud emas');
+    console.log("❌ Bot mavjud emas");
     return false;
   }
 
@@ -247,7 +252,7 @@ const testBot = async () => {
     console.log(`✅ Bot ishlayapti: @${me.username}`);
     return true;
   } catch (error) {
-    console.error('❌ Bot test xatolik:', error.message);
+    console.error("❌ Bot test xatolik:", error.message);
     return false;
   }
 };
@@ -257,5 +262,5 @@ module.exports = {
   postCarToChannel,
   updateCarPost,
   deleteCarPost,
-  testBot
+  testBot,
 };
