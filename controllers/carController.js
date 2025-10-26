@@ -530,3 +530,24 @@ exports.getSimilarCars = async (req, res) => {
     });
   }
 };
+
+// @desc    Foydalanuvchining avtomobillarini olish
+// @route   GET /api/cars/my
+// @access  Private
+exports.getMyCars = async (req, res) => {
+  try {
+    const cars = await Car.find({ owner: req.user.id })
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: cars.length,
+      cars,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

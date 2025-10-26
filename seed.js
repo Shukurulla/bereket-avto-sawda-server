@@ -11,7 +11,7 @@ const seedAdmin = async () => {
     console.log('MongoDB ulandi');
 
     // Admin mavjudligini tekshirish
-    const adminExists = await User.findOne({ email: 'admin@gmail.com' });
+    const adminExists = await User.findOne({ phone: '+998901234567' });
 
     if (adminExists) {
       console.log('Admin foydalanuvchi allaqachon mavjud!');
@@ -20,15 +20,15 @@ const seedAdmin = async () => {
 
     // Yangi admin yaratish
     const admin = await User.create({
-      name: 'Admin',
-      email: 'admin@gmail.com',
+      firstName: 'Admin',
+      lastName: 'User',
       password: 'admin123',
       phone: '+998901234567',
       role: 'admin'
     });
 
     console.log('✅ Admin foydalanuvchi yaratildi!');
-    console.log('Email: admin@gmail.com');
+    console.log('Telefon: +998901234567');
     console.log('Parol: admin123');
 
     process.exit(0);

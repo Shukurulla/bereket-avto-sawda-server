@@ -80,12 +80,11 @@ const carSchema = new mongoose.Schema({
     required: [true, 'Korobka turi kiritilishi shart']
   },
 
-  // Yoqilg'i turi
-  fuelType: {
+  // Yoqilg'i turi (bir nechta bo'lishi mumkin)
+  fuelType: [{
     type: String,
-    enum: ['petrol', 'diesel', 'electric', 'hybrid', 'hybrid_plugin', 'methane', 'propane'],
-    required: [true, 'Yoqilg\'i turi kiritilishi shart']
-  },
+    enum: ['petrol', 'diesel', 'electric', 'hybrid', 'hybrid_plugin', 'methane', 'propane']
+  }],
 
   // Dvigatel hajmi (litrda)
   engineVolume: {

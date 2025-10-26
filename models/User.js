@@ -2,27 +2,28 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-  name: {
+  firstName: {
     type: String,
-    required: [true, 'Ism kiritilishi shart'],
+    required: [true, 'First name is required'],
     trim: true
   },
-  email: {
+  lastName: {
     type: String,
-    required: [true, 'Email kiritilishi shart'],
-    unique: true,
-    lowercase: true,
+    required: [true, 'Last name is required'],
     trim: true
-  },
-  password: {
-    type: String,
-    required: [true, 'Parol kiritilishi shart'],
-    minlength: 6,
-    select: false
   },
   phone: {
     type: String,
-    required: [true, 'Telefon raqam kiritilishi shart']
+    required: [true, 'Phone number is required'],
+    unique: true,
+    trim: true,
+    match: [/^\+998\d{9}$/, 'Please provide a valid phone number in format +998XXXXXXXXX']
+  },
+  password: {
+    type: String,
+    required: [true, 'Password is required'],
+    minlength: 6,
+    select: false
   },
   role: {
     type: String,

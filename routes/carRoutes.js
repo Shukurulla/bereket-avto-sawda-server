@@ -2,6 +2,7 @@ const express = require('express');
 const {
   getCars,
   getCar,
+  getMyCars,
   createCar,
   updateCar,
   deleteCar,
@@ -18,6 +19,8 @@ const router = express.Router();
 router.route('/')
   .get(getCars)
   .post(protect, upload.array('images', 10), createCar);
+
+router.get('/my', protect, getMyCars);
 
 router.route('/:id')
   .get(getCar)

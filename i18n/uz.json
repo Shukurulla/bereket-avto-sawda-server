@@ -1,0 +1,33 @@
+{
+  "auth": {
+    "emailExists": "Bu email allaqachon ro'yxatdan o'tgan",
+    "phoneExists": "Bu telefon raqam allaqachon ro'yxatdan o'tgan",
+    "registerSuccess": "Ro'yxatdan o'tish muvaffaqiyatli!",
+    "invalidCredentials": "Telefon yoki parol noto'g'ri",
+    "phonePasswordRequired": "Telefon va parol kiritish shart",
+    "userNotFound": "Foydalanuvchi topilmadi",
+    "wrongPassword": "Parol noto'g'ri",
+    "loginSuccess": "Tizimga muvaffaqiyatli kirdingiz",
+    "profileUpdated": "Profil muvaffaqiyatli yangilandi!",
+    "currentPasswordWrong": "Joriy parol noto'g'ri"
+  },
+  "car": {
+    "notFound": "Avtomobil topilmadi",
+    "saved": "Avtomobil saqlandi",
+    "updated": "Avtomobil yangilandi",
+    "deleted": "Avtomobil o'chirildi",
+    "addedToSaved": "Avtomobil saqlanganlarga qo'shildi",
+    "removedFromSaved": "Avtomobildan saqlanganlardan o'chirildi"
+  },
+  "banner": {
+    "notFound": "Banner topilmadi",
+    "created": "Banner yaratildi",
+    "updated": "Banner yangilandi",
+    "deleted": "Banner o'chirildi"
+  },
+  "error": {
+    "serverError": "Server xatosi yuz berdi",
+    "unauthorized": "Avtorizatsiya talab qilinadi",
+    "forbidden": "Ruxsat berilmagan"
+  }
+}

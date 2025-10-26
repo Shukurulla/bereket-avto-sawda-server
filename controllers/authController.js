@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const { t } = require('../i18n');
 
 // Token yaratish
 const generateToken = (id) => {
@@ -13,23 +14,23 @@ const generateToken = (id) => {
 // @access  Public
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, phone } = req.body;
+    const { firstName, lastName, phone, password } = req.body;
 
-    // Foydalanuvchi mavjudligini tekshirish
-    const userExists = await User.findOne({ email });
+    // Foydalanuvchi mavjudligini tekshirish (phone bo'yicha)
+    const userExists = await User.findOne({ phone });
     if (userExists) {
       return res.status(400).json({
         success: false,
-        message: 'Бул email дизимге әллақашан жазылған'
+        message: t(req, 'auth.phoneExists')
       });
     }
 
     // Yangi foydalanuvchi yaratish
     const user = await User.create({
-      name,
-      email,
-      password,
-      phone
+      firstName,
+      lastName,
+      phone,
+      password
     });
 
     // Token yaratish
@@ -40,8 +41,8 @@ exports.register = async (req, res) => {
       token,
       user: {
         id: user._id,
-        name: user.name,
-        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
         phone: user.phone,
         role: user.role
       }
@@ -59,23 +60,23 @@ exports.register = async (req, res) => {
 // @access  Public
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { phone, password } = req.body;
 
-    // Email va parolni tekshirish
-    if (!email || !password) {
+    // Phone va parolni tekshirish
+    if (!phone || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Email ҳәм парол киритилиўи шәрт'
+        message: t(req, 'auth.phonePasswordRequired')
       });
     }
 
     // Foydalanuvchini topish (+password bilan)
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ phone }).select('+password');
 
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Email я болмаса парол дурыс емес'
+        message: t(req, 'auth.invalidCredentials')
       });
     }
 
@@ -85,7 +86,7 @@ exports.login = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({
         success: false,
-        message: 'Email я болмаса парол дурыс емес'
+        message: t(req, 'auth.invalidCredentials')
       });
     }
 
@@ -97,8 +98,8 @@ exports.login = async (req, res) => {
       token,
       user: {
         id: user._id,
-        name: user.name,
-        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
         phone: user.phone,
         role: user.role
       }
@@ -135,7 +136,7 @@ exports.getMe = async (req, res) => {
 // @access  Private
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, phone, currentPassword, newPassword } = req.body;
+    const { firstName, lastName, phone, currentPassword, newPassword } = req.body;
 
     // Foydalanuvchini topish
     const user = await User.findById(req.user.id).select('+password');
@@ -143,12 +144,13 @@ exports.updateProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'Пайдаланыўшы табылмады'
+        message: t(req, 'auth.userNotFound')
       });
     }
 
     // Asosiy ma'lumotlarni yangilash
-    user.name = name || user.name;
+    user.firstName = firstName || user.firstName;
+    user.lastName = lastName || user.lastName;
     user.phone = phone || user.phone;
 
     // Agar parol o'zgartirilayotgan bo'lsa
@@ -159,7 +161,7 @@ exports.updateProfile = async (req, res) => {
       if (!isMatch) {
         return res.status(401).json({
           success: false,
-          message: 'Ҳәзирги парол дурыс емес'
+          message: t(req, 'auth.currentPasswordWrong')
         });
       }
 

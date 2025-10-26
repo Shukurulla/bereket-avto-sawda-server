@@ -13,12 +13,18 @@ const app = express();
 
 // CORS - Eng oddiy va ishonchli konfiguratsiya
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+  );
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
 
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return res.sendStatus(200);
   }
 
@@ -38,7 +44,7 @@ app.use("/api/banners", require("./routes/bannerRoutes"));
 
 // Asosiy yo'l
 app.get("/", (req, res) => {
-  res.json({ message: "Bereket avto sawda API" });
+  res.json({ message: " avto sawda API" });
 });
 
 // Error handler
