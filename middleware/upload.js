@@ -28,8 +28,11 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 200 * 1024 * 1024, // 200MB
-    files: 10 // Maksimal 10 ta fayl
+    fileSize: 200 * 1024 * 1024, // 200MB har bir fayl uchun
+    files: 10, // Maksimal 10 ta fayl
+    fieldSize: 200 * 1024 * 1024, // 200MB field size
+    fields: 50, // Maksimal field soni
+    parts: 100 // Maksimal part soni (files + fields)
   },
   fileFilter: fileFilter
 });
