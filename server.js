@@ -32,6 +32,8 @@ app.use((req, res, next) => {
   if (allowedOrigins.includes(origin)) {
     res.header("Access-Control-Allow-Origin", origin);
     res.header("Access-Control-Allow-Credentials", "true");
+  } else if (origin) {
+    console.log(`CORS blocked: ${origin}`);
   }
 
   res.header(
