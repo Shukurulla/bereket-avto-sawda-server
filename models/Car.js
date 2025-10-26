@@ -440,6 +440,11 @@ const carSchema = new mongoose.Schema({
     default: 0
   },
 
+  // Telegram post ID
+  telegramPostId: {
+    type: Number
+  },
+
   // ============================================
   // EGASI VA SANA
   // ============================================

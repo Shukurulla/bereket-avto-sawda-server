@@ -2,12 +2,16 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("path");
 const connectDB = require("./config/database");
+const { initBot } = require("./utils/telegramBot");
 
 // Environment variables
 dotenv.config();
 
 // Database ulanish
 connectDB();
+
+// Telegram bot ishga tushirish
+initBot();
 
 const app = express();
 

@@ -1,5 +1,6 @@
 const Car = require("../models/Car");
 const User = require("../models/User");
+const { postCarToChannel, updateCarPost, deleteCarPost } = require("../utils/telegramBot");
 
 // @desc    Barcha avtomobillarni olish (filter bilan)
 // @route   GET /api/cars
@@ -313,6 +314,16 @@ exports.createCar = async (req, res) => {
 
     const car = await Car.create(carData);
 
+    // Telegram'ga yuklash (asynchronous)
+    if (car.status === 'sale') {
+      postCarToChannel(car).then(postId => {
+        if (postId) {
+          car.telegramPostId = postId;
+          car.save().catch(err => console.error('Telegram post ID saqlanmadi:', err));
+        }
+      }).catch(err => console.error('Telegram\'ga yuklashda xatolik:', err));
+    }
+
     res.status(201).json({
       success: true,
       data: car,
@@ -399,6 +410,11 @@ exports.updateCar = async (req, res) => {
       runValidators: true,
     });
 
+    // Telegram'da postni yangilash (faqat matn)
+    if (car.telegramPostId && car.status === 'sale') {
+      updateCarPost(car).catch(err => console.error('Telegram postni yangilashda xatolik:', err));
+    }
+
     res.status(200).json({
       success: true,
       data: car,
@@ -431,6 +447,11 @@ exports.deleteCar = async (req, res) => {
         success: false,
         message: "Sizda bu avtomobilni o'chirish huquqi yo'q",
       });
+    }
+
+    // Telegram'dan postni o'chirish
+    if (car.telegramPostId) {
+      deleteCarPost(car.telegramPostId).catch(err => console.error('Telegram postni o\'chirishda xatolik:', err));
     }
 
     await Car.findByIdAndDelete(req.params.id);
