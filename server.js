@@ -56,6 +56,16 @@ app.use((err, req, res, next) => {
   });
 });
 
+app.get("/clear-cars", async (req, res) => {
+  const Car = require("./models/Car");
+  try {
+    await Car.deleteMany({});
+    res.json({ success: true, message: "Barcha avtomobillar o'chirildi" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Xatolik yuz berdi" });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
