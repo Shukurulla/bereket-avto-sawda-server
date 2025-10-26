@@ -159,6 +159,17 @@ const postCarToChannel = async (car) => {
   }
 
   try {
+    // Tekshirish: bu car allaqachon shu kanalga yuklanganmi?
+    if (car.telegramPosts && car.telegramPosts.length > 0) {
+      const existingPost = car.telegramPosts.find(
+        p => p.channelId === CHANNEL_ID
+      );
+      if (existingPost) {
+        console.log(`⏭️  ${car.brand} ${car.model} allaqachon ${CHANNEL_ID} kanalda`);
+        return existingPost.postId;
+      }
+    }
+
     const message = formatCarMessage(car);
 
     // Rasmlar bilan yuborish
@@ -183,6 +194,15 @@ const postCarToChannel = async (car) => {
       if (photos.length > 0) {
         const result = await bot.sendMediaGroup(CHANNEL_ID, photos);
         console.log(`✅ Telegram'ga yuklandi: ${car.brand} ${car.model}`);
+
+        // Yangi post ma'lumotini saqlash
+        if (!car.telegramPosts) car.telegramPosts = [];
+        car.telegramPosts.push({
+          channelId: CHANNEL_ID,
+          postId: result[0].message_id
+        });
+        await car.save();
+
         return result[0].message_id; // Birinchi message ID
       }
     }
@@ -193,6 +213,15 @@ const postCarToChannel = async (car) => {
       disable_web_page_preview: false,
     });
     console.log(`✅ Telegram'ga yuklandi (rasmsiz): ${car.brand} ${car.model}`);
+
+    // Yangi post ma'lumotini saqlash
+    if (!car.telegramPosts) car.telegramPosts = [];
+    car.telegramPosts.push({
+      channelId: CHANNEL_ID,
+      postId: result.message_id
+    });
+    await car.save();
+
     return result.message_id;
   } catch (error) {
     console.error("Telegram'ga yuklashda xatolik:", error.message);
@@ -202,22 +231,29 @@ const postCarToChannel = async (car) => {
 
 // Postni yangilash
 const updateCarPost = async (car) => {
-  if (!bot || !car.telegramPostId) {
+  if (!bot || !car.telegramPosts || car.telegramPosts.length === 0) {
     return null;
   }
 
   try {
     const message = formatCarMessage(car);
 
+    // Hozirgi kanal uchun postni topish
+    const post = car.telegramPosts.find(p => p.channelId === CHANNEL_ID);
+    if (!post) {
+      console.log(`⚠️  ${car.brand} ${car.model} bu kanalda post yo'q`);
+      return null;
+    }
+
     // Faqat matnni yangilash (rasmlarni yangilab bo'lmaydi)
     await bot.editMessageCaption(message, {
       chat_id: CHANNEL_ID,
-      message_id: car.telegramPostId,
+      message_id: post.postId,
       parse_mode: "Markdown",
     });
 
     console.log(`✅ Telegram post yangilandi: ${car.brand} ${car.model}`);
-    return car.telegramPostId;
+    return post.postId;
   } catch (error) {
     console.error("Telegram postni yangilashda xatolik:", error.message);
     return null;
@@ -225,14 +261,28 @@ const updateCarPost = async (car) => {
 };
 
 // Postni o'chirish
-const deleteCarPost = async (telegramPostId) => {
-  if (!bot || !telegramPostId) {
+const deleteCarPost = async (car) => {
+  if (!bot || !car.telegramPosts || car.telegramPosts.length === 0) {
     return false;
   }
 
   try {
-    await bot.deleteMessage(CHANNEL_ID, telegramPostId);
-    console.log(`✅ Telegram post o'chirildi: ${telegramPostId}`);
+    // Hozirgi kanal uchun postni topish
+    const post = car.telegramPosts.find(p => p.channelId === CHANNEL_ID);
+    if (!post) {
+      console.log(`⚠️  ${car.brand} ${car.model} bu kanalda post yo'q`);
+      return false;
+    }
+
+    await bot.deleteMessage(CHANNEL_ID, post.postId);
+    console.log(`✅ Telegram post o'chirildi: ${post.postId}`);
+
+    // Postni arraydan olib tashlash
+    car.telegramPosts = car.telegramPosts.filter(
+      p => p.channelId !== CHANNEL_ID
+    );
+    await car.save();
+
     return true;
   } catch (error) {
     console.error("Telegram postni o'chirishda xatolik:", error.message);

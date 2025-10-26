@@ -450,8 +450,8 @@ exports.deleteCar = async (req, res) => {
     }
 
     // Telegram'dan postni o'chirish
-    if (car.telegramPostId) {
-      deleteCarPost(car.telegramPostId).catch(err => console.error('Telegram postni o\'chirishda xatolik:', err));
+    if (car.telegramPosts && car.telegramPosts.length > 0) {
+      deleteCarPost(car).catch(err => console.error('Telegram postni o\'chirishda xatolik:', err));
     }
 
     await Car.findByIdAndDelete(req.params.id);

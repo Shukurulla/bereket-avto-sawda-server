@@ -440,10 +440,11 @@ const carSchema = new mongoose.Schema({
     default: 0
   },
 
-  // Telegram post ID
-  telegramPostId: {
-    type: Number
-  },
+  // Telegram posts (har bir kanal uchun)
+  telegramPosts: [{
+    channelId: String,    // @test123 yoki @avto_satiw
+    postId: Number        // Message ID
+  }],
 
   // ============================================
   // EGASI VA SANA
