@@ -39,9 +39,9 @@ const seedDefaultBanner = async () => {
       return;
     }
 
-    // Default rasm fayl nomi
-    const defaultImageName = "default-banner.png";
-    const sourcePath = path.join(__dirname, "..", defaultImageName);
+    // Default rasm fayl nomi (seeds papkasida)
+    const defaultImageName = "default_banner.png";
+    const sourcePath = path.join(__dirname, defaultImageName); // seeds papkasidan olish
     const uploadsDir = path.join(__dirname, "..", "uploads");
     const destPath = path.join(uploadsDir, defaultImageName);
 
@@ -55,7 +55,7 @@ const seedDefaultBanner = async () => {
     if (!fs.existsSync(sourcePath)) {
       console.error("❌ Default rasm topilmadi:", sourcePath);
       console.log(
-        "⚠️  Iltimos, default-banner.jpg faylini backend papkasiga qo'ying!"
+        "⚠️  Iltimos, default_banner.png faylini seeds papkasiga qo'ying!"
       );
       process.exit(1);
       return;
@@ -69,7 +69,7 @@ const seedDefaultBanner = async () => {
 
     // Default banner yaratish
     const defaultBanner = new Banner({
-      title: "Default Banner",
+      title: "Bereket Auto - Eng yaxshi avtomobillar",
       image: `/uploads/${defaultImageName}`,
       link: "/cars",
       order: 1,
