@@ -56,8 +56,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.get("/clear-cars", async (req, res) => {
-  const Car = require("./models/Car");
+app.get("/clear-ads", async (req, res) => {
+  const Car = require("./models/Banner");
   try {
     await Car.deleteMany({});
     res.json({ success: true, message: "Barcha avtomobillar o'chirildi" });
