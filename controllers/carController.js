@@ -200,14 +200,28 @@ exports.getCars = async (req, res) => {
       filter.ownersCount = { $lte: Number(maxOwnersCount) };
     }
 
+    // Pagination
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const skip = (page - 1) * limit;
+
+    // Umumiy soni (pagination uchun)
+    const total = await Car.countDocuments(filter);
+
     // Premium avtomobillarni tepaga chiqarish
     const cars = await Car.find(filter)
       .populate("owner", "name phone")
-      .sort({ isPremium: -1, createdAt: -1 });
+      .sort({ isPremium: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     res.status(200).json({
       success: true,
       count: cars.length,
+      total: total,
+      page: page,
+      pages: Math.ceil(total / limit),
+      hasMore: page * limit < total,
       data: cars,
     });
   } catch (error) {
@@ -259,9 +273,13 @@ exports.getCar = async (req, res) => {
 // @access  Private
 exports.createCar = async (req, res) => {
   try {
-    // Rasm fayllari yo'llarini olish
-    const images = req.files
-      ? req.files.map((file) => `/uploads/${file.filename}`)
+    // Siqilgan rasmlar yo'llarini olish
+    const images = req.processedFiles
+      ? req.processedFiles.map((file) => file.path)
+      : [];
+
+    const thumbnails = req.processedFiles
+      ? req.processedFiles.map((file) => file.thumbnail)
       : [];
 
     if (images.length === 0) {
@@ -275,7 +293,8 @@ exports.createCar = async (req, res) => {
     const carData = {
       ...req.body,
       owner: req.user.id,
-      images: images
+      images: images,
+      thumbnails: thumbnails
     };
 
     // Parse complex/nested fields if they exist
@@ -350,20 +369,30 @@ exports.updateCar = async (req, res) => {
 
     // Rasmlarni boshqarish
     let finalImages = [...car.images];
+    let finalThumbnails = [...(car.thumbnails || [])];
 
     // Agar existingImages yuborilgan bo'lsa (o'chirilmaganlar ro'yxati)
     if (req.body.existingImages) {
       const existingImages = JSON.parse(req.body.existingImages);
       finalImages = existingImages;
+
+      // Thumbnails ham filterlash
+      if (car.thumbnails && car.thumbnails.length > 0) {
+        const existingIndices = existingImages.map(img => car.images.indexOf(img)).filter(i => i !== -1);
+        finalThumbnails = existingIndices.map(i => car.thumbnails[i]).filter(Boolean);
+      }
     }
 
     // Yangi rasmlar qo'shilsa
-    if (req.files && req.files.length > 0) {
-      const newImages = req.files.map((file) => `/uploads/${file.filename}`);
+    if (req.processedFiles && req.processedFiles.length > 0) {
+      const newImages = req.processedFiles.map((file) => file.path);
+      const newThumbnails = req.processedFiles.map((file) => file.thumbnail);
       finalImages = [...finalImages, ...newImages];
+      finalThumbnails = [...finalThumbnails, ...newThumbnails];
     }
 
     updateData.images = finalImages;
+    updateData.thumbnails = finalThumbnails;
 
     car = await Car.findByIdAndUpdate(req.params.id, updateData, {
       new: true,

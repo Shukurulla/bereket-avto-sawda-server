@@ -12,19 +12,19 @@ const {
   getSimilarCars
 } = require('../controllers/carController');
 const { protect, adminOnly } = require('../middleware/auth');
-const upload = require('../middleware/upload');
+const { upload, compressImages } = require('../middleware/upload');
 
 const router = express.Router();
 
 router.route('/')
   .get(getCars)
-  .post(protect, upload.array('images', 10), createCar);
+  .post(protect, upload.array('images', 10), compressImages, createCar);
 
 router.get('/my', protect, getMyCars);
 
 router.route('/:id')
   .get(getCar)
-  .put(protect, upload.array('images', 10), updateCar)
+  .put(protect, upload.array('images', 10), compressImages, updateCar)
   .delete(protect, deleteCar);
 
 router.route('/:id/save')

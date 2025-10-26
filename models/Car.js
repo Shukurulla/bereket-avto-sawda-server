@@ -405,6 +405,11 @@ const carSchema = new mongoose.Schema({
     required: true
   }],
 
+  // Thumbnail rasmlar (kichik versiya)
+  thumbnails: [{
+    type: String
+  }],
+
   // Video havola
   videoUrl: {
     type: String,
