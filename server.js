@@ -13,6 +13,45 @@ connectDB();
 // Telegram bot ishga tushirish
 initBot();
 
+// Eski carlarni avtomatik yuklash
+const uploadOldCars = async () => {
+  try {
+    const Car = require("./models/Car");
+    const { postCarToChannel } = require("./utils/telegramBot");
+
+    const cars = await Car.find({
+      $or: [
+        { telegramPostId: { $exists: false } },
+        { telegramPostId: null }
+      ],
+      status: "sale"
+    }).limit(5); // Birinchi 5 ta
+
+    if (cars.length > 0) {
+      console.log(`📤 ${cars.length} ta car Telegram'ga yuklanmoqda...`);
+
+      for (const car of cars) {
+        try {
+          const postId = await postCarToChannel(car);
+          if (postId) {
+            car.telegramPostId = postId;
+            await car.save();
+            console.log(`✅ ${car.brand} ${car.model} yuklandi`);
+          }
+          await new Promise(r => setTimeout(r, 3000));
+        } catch (err) {
+          console.error(`❌ ${car.brand} ${car.model} xatolik:`, err.message);
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Avtomatik yuklashda xatolik:", error.message);
+  }
+};
+
+// 10 soniyadan keyin yuklashni boshlash
+setTimeout(uploadOldCars, 10000);
+
 const app = express();
 
 // CORS - Faqat belgilangan domainlar uchun

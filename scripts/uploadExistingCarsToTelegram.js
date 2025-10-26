@@ -61,11 +61,19 @@ const uploadExistingCars = async () => {
           console.log(`   ❌ Yuklashda xatolik`);
         }
 
-        // Telegram API rate limit uchun kutish (1 soniyada 30 ta xabar)
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        // Telegram API rate limit uchun kutish (3 soniya)
+        await new Promise((resolve) => setTimeout(resolve, 3000));
       } catch (error) {
         errorCount++;
         console.error(`   ❌ Xatolik: ${error.message}`);
+
+        // Agar rate limit bo'lsa, ko'proq kutamiz
+        if (error.message.includes('Too Many Requests') || error.message.includes('429')) {
+          console.log('   ⏳ 40 soniya kutilmoqda...');
+          await new Promise((resolve) => setTimeout(resolve, 40000));
+        } else {
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+        }
       }
     }
 
