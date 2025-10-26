@@ -40,7 +40,7 @@ const seedDefaultBanner = async () => {
     }
 
     // Default rasm fayl nomi
-    const defaultImageName = "../default-banner.png";
+    const defaultImageName = "default-banner.png";
     const sourcePath = path.join(__dirname, "..", defaultImageName);
     const uploadsDir = path.join(__dirname, "..", "uploads");
     const destPath = path.join(uploadsDir, defaultImageName);
