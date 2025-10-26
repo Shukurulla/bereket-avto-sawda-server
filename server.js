@@ -11,10 +11,29 @@ connectDB();
 
 const app = express();
 
-// CORS - Eng oddiy va ishonchli konfiguratsiya
+// CORS - Faqat belgilangan domainlar uchun
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:5175',
+  'http://localhost:5176',
+  'http://localhost:5177',
+  'http://localhost:5178',
+  'https://bereket-avto.kerek.uz',
+  'https://avto.kerek.uz',
+  'http://bereket-avto.kerek.uz',
+  'http://avto.kerek.uz'
+];
+
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
-  res.header("Access-Control-Allow-Credentials", "true");
+  const origin = req.headers.origin;
+
+  // Agar origin ruxsat etilgan ro'yxatda bo'lsa
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+    res.header("Access-Control-Allow-Credentials", "true");
+  }
+
   res.header(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, OPTIONS, PATCH"

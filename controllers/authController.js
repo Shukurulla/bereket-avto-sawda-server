@@ -41,6 +41,7 @@ exports.register = async (req, res) => {
       token,
       user: {
         id: user._id,
+        name: `${user.firstName} ${user.lastName}`,
         firstName: user.firstName,
         lastName: user.lastName,
         phone: user.phone,
@@ -98,6 +99,7 @@ exports.login = async (req, res) => {
       token,
       user: {
         id: user._id,
+        name: `${user.firstName} ${user.lastName}`,
         firstName: user.firstName,
         lastName: user.lastName,
         phone: user.phone,
@@ -121,7 +123,15 @@ exports.getMe = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      user
+      user: {
+        id: user._id,
+        name: `${user.firstName} ${user.lastName}`,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        role: user.role,
+        savedCars: user.savedCars
+      }
     });
   } catch (error) {
     res.status(500).json({
@@ -172,12 +182,16 @@ exports.updateProfile = async (req, res) => {
     // Saqlash
     await user.save();
 
-    // Parolni responsdan olib tashlash
-    user.password = undefined;
-
     res.status(200).json({
       success: true,
-      user
+      user: {
+        id: user._id,
+        name: `${user.firstName} ${user.lastName}`,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        role: user.role
+      }
     });
   } catch (error) {
     res.status(500).json({
