@@ -374,13 +374,14 @@ exports.deleteCar = async (req, res) => {
       });
     }
 
-    await car.deleteOne();
+    await Car.findByIdAndDelete(req.params.id);
 
     res.status(200).json({
       success: true,
       message: "Avtomobil o'chirildi",
     });
   } catch (error) {
+    console.error('Error deleting car:', error);
     res.status(500).json({
       success: false,
       message: error.message,

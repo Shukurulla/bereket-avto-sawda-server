@@ -31,8 +31,9 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Body parser - 200MB gacha request qabul qilish
+app.use(express.json({ limit: '200mb' }));
+app.use(express.urlencoded({ limit: '200mb', extended: true, parameterLimit: 50000 }));
 
 // Static folder (rasmlar uchun)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
