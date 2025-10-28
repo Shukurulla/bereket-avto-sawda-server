@@ -31,12 +31,11 @@ const addInitialViews = async () => {
 
     for (const car of cars) {
       const oldViews = car.views || 0;
-      const newViews = oldViews + 100;
-
-      car.views = newViews;
+      // Hozirgi bazadagi avtomobillarni 100 ga o'rnatish
+      car.views = 100;
       await car.save();
       updatedCount++;
-      console.log(`✅ ${car.brand} ${car.model}: ${oldViews} → ${newViews} views`);
+      console.log(`✅ ${car.brand} ${car.model}: ${oldViews} → 100 views`);
     }
 
     console.log(`\n✅ Jarayon tugadi! ${updatedCount} ta avtomobil yangilandi.`);
