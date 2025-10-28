@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const path = require("path");
 const connectDB = require("./config/database");
 const { initBot } = require("./utils/telegramBot");
+const { startFakeViewsCron } = require("./utils/fakeViews");
 
 // Environment variables
 dotenv.config();
@@ -12,6 +13,9 @@ connectDB();
 
 // Telegram bot ishga tushirish
 initBot();
+
+// Fake views cron job ishga tushirish
+startFakeViewsCron();
 
 // Eski carlarni avtomatik yuklash
 const uploadOldCars = async () => {
