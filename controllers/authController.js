@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Car = require('../models/Car');
 const jwt = require('jsonwebtoken');
 const { t } = require('../i18n');
 
@@ -192,6 +193,116 @@ exports.updateProfile = async (req, res) => {
         phone: user.phone,
         role: user.role
       }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    O'z hisobini o'chirish (App Store talabi)
+// @route   DELETE /api/auth/delete-account
+// @access  Private
+exports.deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Foydalanuvchini topish
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: t(req, 'auth.userNotFound')
+      });
+    }
+
+    // Foydalanuvchining barcha e'lonlarini o'chirish
+    await Car.deleteMany({ owner: userId });
+
+    // Boshqa userlarning savedCars dan bu user e'lonlarini olib tashlash
+    await User.updateMany(
+      {},
+      { $pull: { savedCars: { $in: await Car.find({ owner: userId }).distinct('_id') } } }
+    );
+
+    // Foydalanuvchini o'chirish
+    await User.findByIdAndDelete(userId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Hisob muvaffaqiyatli o\'chirildi'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Admin tomonidan foydalanuvchini o'chirish
+// @route   DELETE /api/auth/users/:id
+// @access  Private/Admin
+exports.deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Foydalanuvchini topish
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: t(req, 'auth.userNotFound')
+      });
+    }
+
+    // Admin o'zini o'chira olmaydi
+    if (userId === req.user.id) {
+      return res.status(400).json({
+        success: false,
+        message: 'O\'zingizni o\'chira olmaysiz'
+      });
+    }
+
+    // Foydalanuvchining barcha e'lonlarini o'chirish
+    await Car.deleteMany({ owner: userId });
+
+    // Boshqa userlarning savedCars dan bu user e'lonlarini olib tashlash
+    await User.updateMany(
+      { _id: { $ne: userId } },
+      { $pull: { savedCars: { $in: await Car.find({ owner: userId }).distinct('_id') } } }
+    );
+
+    // Foydalanuvchini o'chirish
+    await User.findByIdAndDelete(userId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Foydalanuvchi muvaffaqiyatli o\'chirildi'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Barcha foydalanuvchilarni olish (Admin uchun)
+// @route   GET /api/auth/users
+// @access  Private/Admin
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password').sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: users.length,
+      users
     });
   } catch (error) {
     res.status(500).json({
