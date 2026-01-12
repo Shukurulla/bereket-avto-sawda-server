@@ -1,0 +1,1243 @@
+{
+  "info": {
+    "_postman_id": "avto-elon-api-collection",
+    "name": "Avto Elon API",
+    "description": "Avto Elon backend API to'liq dokumentatsiyasi",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Autentifikatsiya endpointlari",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"phone\": \"+998901234567\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Yangi foydalanuvchi ro'yxatdan o'tkazish"
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+998901234567\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Tizimga kirish"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "Joriy foydalanuvchi ma'lumotlarini olish"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Yangi Ism\",\n  \"lastName\": \"Yangi Familiya\",\n  \"phone\": \"+998901234567\",\n  \"currentPassword\": \"123456\",\n  \"newPassword\": \"654321\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/updateProfile",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "updateProfile"]
+            },
+            "description": "Foydalanuvchi profilini yangilash (parol ham o'zgartirilishi mumkin)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Account (App Store)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/delete-account",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "delete-account"]
+            },
+            "description": "O'z hisobini o'chirish (App Store talabi). Bu amal barcha e'lonlarni ham o'chiradi."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "users"]
+            },
+            "description": "Barcha foydalanuvchilar ro'yxati (faqat admin)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "USER_ID_HERE",
+                  "description": "O'chiriladigan foydalanuvchi ID"
+                }
+              ]
+            },
+            "description": "Foydalanuvchini o'chirish (faqat admin). Bu amal foydalanuvchining barcha e'lonlarini ham o'chiradi."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cars",
+      "description": "Avtomobil e'lonlari endpointlari",
+      "item": [
+        {
+          "name": "Get All Cars",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/cars?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["cars"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Sahifa raqami"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Sahifadagi elementlar soni"
+                },
+                {
+                  "key": "search",
+                  "value": "Chevrolet",
+                  "description": "Qidiruv (brand va model bo'yicha)",
+                  "disabled": true
+                },
+                {
+                  "key": "brand",
+                  "value": "Chevrolet",
+                  "description": "Marka",
+                  "disabled": true
+                },
+                {
+                  "key": "model",
+                  "value": "Malibu",
+                  "description": "Model",
+                  "disabled": true
+                },
+                {
+                  "key": "minYear",
+                  "value": "2018",
+                  "description": "Minimal yil",
+                  "disabled": true
+                },
+                {
+                  "key": "maxYear",
+                  "value": "2024",
+                  "description": "Maksimal yil",
+                  "disabled": true
+                },
+                {
+                  "key": "minPrice",
+                  "value": "100000000",
+                  "description": "Minimal narx",
+                  "disabled": true
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "500000000",
+                  "description": "Maksimal narx",
+                  "disabled": true
+                },
+                {
+                  "key": "minMileage",
+                  "value": "0",
+                  "description": "Minimal probeg",
+                  "disabled": true
+                },
+                {
+                  "key": "maxMileage",
+                  "value": "100000",
+                  "description": "Maksimal probeg",
+                  "disabled": true
+                },
+                {
+                  "key": "color",
+                  "value": "white",
+                  "description": "Rang",
+                  "disabled": true
+                },
+                {
+                  "key": "bodyType",
+                  "value": "sedan",
+                  "description": "Kuzov turi: sedan, hatchback, suv, crossover, coupe, wagon, minivan, pickup, van, convertible, other",
+                  "disabled": true
+                },
+                {
+                  "key": "doors",
+                  "value": "4",
+                  "description": "Eshiklar soni: 2, 3, 4, 5",
+                  "disabled": true
+                },
+                {
+                  "key": "seats",
+                  "value": "5",
+                  "description": "O'rindiqlar soni",
+                  "disabled": true
+                },
+                {
+                  "key": "transmission",
+                  "value": "automatic",
+                  "description": "Korobka: automatic, manual, robot, cvt",
+                  "disabled": true
+                },
+                {
+                  "key": "fuelType",
+                  "value": "petrol",
+                  "description": "Yoqilg'i: petrol, diesel, electric, hybrid, hybrid_plugin, methane, propane",
+                  "disabled": true
+                },
+                {
+                  "key": "engineVolume",
+                  "value": "2.0",
+                  "description": "Dvigatel hajmi (litr)",
+                  "disabled": true
+                },
+                {
+                  "key": "minEnginePower",
+                  "value": "100",
+                  "description": "Minimal dvigatel quvvati (hp)",
+                  "disabled": true
+                },
+                {
+                  "key": "maxEnginePower",
+                  "value": "300",
+                  "description": "Maksimal dvigatel quvvati (hp)",
+                  "disabled": true
+                },
+                {
+                  "key": "driveType",
+                  "value": "fwd",
+                  "description": "Privod: fwd (old), rwd (orqa), awd (to'liq), 4wd",
+                  "disabled": true
+                },
+                {
+                  "key": "gasType",
+                  "value": "methane",
+                  "description": "Gaz turi: none, methane, propane",
+                  "disabled": true
+                },
+                {
+                  "key": "gasGeneration",
+                  "value": "4",
+                  "description": "Gaz avlodi",
+                  "disabled": true
+                },
+                {
+                  "key": "hasSunroof",
+                  "value": "true",
+                  "description": "Lyuk bor",
+                  "disabled": true
+                },
+                {
+                  "key": "hasPanoramicRoof",
+                  "value": "true",
+                  "description": "Panoramik lyuk bor",
+                  "disabled": true
+                },
+                {
+                  "key": "hasCovers",
+                  "value": "true",
+                  "description": "Chexol bor",
+                  "disabled": true
+                },
+                {
+                  "key": "hasTinting",
+                  "value": "true",
+                  "description": "Tonirovka bor",
+                  "disabled": true
+                },
+                {
+                  "key": "hasMultimedia",
+                  "value": "true",
+                  "description": "Multimedia bor",
+                  "disabled": true
+                },
+                {
+                  "key": "climateControl",
+                  "value": "dual_zone",
+                  "description": "Klimat: none, ac, climate_control, dual_zone, multi_zone",
+                  "disabled": true
+                },
+                {
+                  "key": "heatedSeats",
+                  "value": "front",
+                  "description": "O'rindiq isitish: none, front, front_rear, all",
+                  "disabled": true
+                },
+                {
+                  "key": "cruiseControl",
+                  "value": "adaptive",
+                  "description": "Kruiz-kontrol: none, standard, adaptive",
+                  "disabled": true
+                },
+                {
+                  "key": "keylessEntry",
+                  "value": "true",
+                  "description": "Keyless entry",
+                  "disabled": true
+                },
+                {
+                  "key": "startStopButton",
+                  "value": "true",
+                  "description": "Start/Stop tugmasi",
+                  "disabled": true
+                },
+                {
+                  "key": "hasRearCamera",
+                  "value": "true",
+                  "description": "Orqa kamera",
+                  "disabled": true
+                },
+                {
+                  "key": "has360Camera",
+                  "value": "true",
+                  "description": "360 kamera",
+                  "disabled": true
+                },
+                {
+                  "key": "hasParkingSensors",
+                  "value": "true",
+                  "description": "Parkovka sensorlari",
+                  "disabled": true
+                },
+                {
+                  "key": "hasBlindSpot",
+                  "value": "true",
+                  "description": "Ko'r nuqta sensori",
+                  "disabled": true
+                },
+                {
+                  "key": "rainSensor",
+                  "value": "true",
+                  "description": "Yomg'ir sensori",
+                  "disabled": true
+                },
+                {
+                  "key": "lightSensor",
+                  "value": "true",
+                  "description": "Yorug'lik sensori",
+                  "disabled": true
+                },
+                {
+                  "key": "hasABS",
+                  "value": "true",
+                  "description": "ABS bor",
+                  "disabled": true
+                },
+                {
+                  "key": "hasESP",
+                  "value": "true",
+                  "description": "ESP bor",
+                  "disabled": true
+                },
+                {
+                  "key": "hasAirbags",
+                  "value": "true",
+                  "description": "Xavfsizlik yostiqlari bor",
+                  "disabled": true
+                },
+                {
+                  "key": "minAirbagsCount",
+                  "value": "4",
+                  "description": "Minimal xavfsizlik yostiqlari soni",
+                  "disabled": true
+                },
+                {
+                  "key": "condition",
+                  "value": "new",
+                  "description": "Holat: new, good, normal",
+                  "disabled": true
+                },
+                {
+                  "key": "hasAccidentHistory",
+                  "value": "false",
+                  "description": "Avariyada bo'lgan",
+                  "disabled": true
+                },
+                {
+                  "key": "hasServiceHistory",
+                  "value": "true",
+                  "description": "Servis tarixi bor",
+                  "disabled": true
+                },
+                {
+                  "key": "hasWarranty",
+                  "value": "true",
+                  "description": "Kafolat bor",
+                  "disabled": true
+                },
+                {
+                  "key": "countryOfOrigin",
+                  "value": "Korea",
+                  "description": "Ishlab chiqarilgan davlat",
+                  "disabled": true
+                },
+                {
+                  "key": "maxOwnersCount",
+                  "value": "2",
+                  "description": "Maksimal egalar soni",
+                  "disabled": true
+                },
+                {
+                  "key": "city",
+                  "value": "Tashkent",
+                  "description": "Shahar",
+                  "disabled": true
+                },
+                {
+                  "key": "region",
+                  "value": "Tashkent",
+                  "description": "Viloyat",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "sale",
+                  "description": "Status: sale, sold, reserved",
+                  "disabled": true
+                },
+                {
+                  "key": "isPremium",
+                  "value": "true",
+                  "description": "Premium e'lon",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Barcha avtomobillar ro'yxatini olish (filter bilan)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Car by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/cars/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["cars", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "CAR_ID_HERE",
+                  "description": "Avtomobil ID"
+                }
+              ]
+            },
+            "description": "Bitta avtomobilni olish (views +1 qilinadi)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Cars",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cars/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["cars", "my"]
+            },
+            "description": "Joriy foydalanuvchining barcha e'lonlarini olish"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Car",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "images",
+                  "type": "file",
+                  "description": "Rasmlar (max 10 ta)"
+                },
+                {
+                  "key": "brand",
+                  "value": "Chevrolet",
+                  "type": "text",
+                  "description": "Marka (required)"
+                },
+                {
+                  "key": "model",
+                  "value": "Malibu",
+                  "type": "text",
+                  "description": "Model (required)"
+                },
+                {
+                  "key": "year",
+                  "value": "2020",
+                  "type": "text",
+                  "description": "Yil (required)"
+                },
+                {
+                  "key": "mileage",
+                  "value": "50000",
+                  "type": "text",
+                  "description": "Probeg (required)"
+                },
+                {
+                  "key": "price",
+                  "value": "250000000",
+                  "type": "text",
+                  "description": "Narx"
+                },
+                {
+                  "key": "transmission",
+                  "value": "automatic",
+                  "type": "text",
+                  "description": "Korobka: automatic, manual, robot, cvt (required)"
+                },
+                {
+                  "key": "condition",
+                  "value": "good",
+                  "type": "text",
+                  "description": "Holat: new, good, normal (required)"
+                },
+                {
+                  "key": "color",
+                  "value": "white",
+                  "type": "text",
+                  "description": "Rang"
+                },
+                {
+                  "key": "bodyType",
+                  "value": "sedan",
+                  "type": "text",
+                  "description": "Kuzov turi"
+                },
+                {
+                  "key": "doors",
+                  "value": "4",
+                  "type": "text",
+                  "description": "Eshiklar soni"
+                },
+                {
+                  "key": "seats",
+                  "value": "5",
+                  "type": "text",
+                  "description": "O'rindiqlar soni"
+                },
+                {
+                  "key": "engineVolume",
+                  "value": "2.0",
+                  "type": "text",
+                  "description": "Dvigatel hajmi"
+                },
+                {
+                  "key": "enginePower",
+                  "value": "160",
+                  "type": "text",
+                  "description": "Dvigatel quvvati (hp)"
+                },
+                {
+                  "key": "driveType",
+                  "value": "fwd",
+                  "type": "text",
+                  "description": "Privod: fwd, rwd, awd, 4wd"
+                },
+                {
+                  "key": "vinCode",
+                  "value": "1G1YY22G965109876",
+                  "type": "text",
+                  "description": "VIN kod"
+                },
+                {
+                  "key": "location",
+                  "value": "Tashkent",
+                  "type": "text",
+                  "description": "Joylashuv"
+                },
+                {
+                  "key": "description",
+                  "value": "Zo'r mashina, ideal holat",
+                  "type": "text",
+                  "description": "Tavsif"
+                },
+                {
+                  "key": "contact",
+                  "value": "{\"phone\": \"+998901234567\", \"telegram\": \"@username\", \"whatsapp\": \"+998901234567\"}",
+                  "type": "text",
+                  "description": "Kontakt (JSON string)"
+                },
+                {
+                  "key": "fuelType",
+                  "value": "[\"petrol\"]",
+                  "type": "text",
+                  "description": "Yoqilg'i turi (JSON array)"
+                },
+                {
+                  "key": "gasEquipment",
+                  "value": "{\"hasGasEquipment\": true, \"gasType\": \"methane\", \"generation\": \"4\"}",
+                  "type": "text",
+                  "description": "Gaz jihozi (JSON)"
+                },
+                {
+                  "key": "tinting",
+                  "value": "{\"hasTinting\": true, \"location\": \"full\"}",
+                  "type": "text",
+                  "description": "Tonirovka (JSON)"
+                },
+                {
+                  "key": "hasSunroof",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "hasPanoramicRoof",
+                  "value": "false",
+                  "type": "text"
+                },
+                {
+                  "key": "hasMultimedia",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "multimediaFeatures",
+                  "value": "[\"android_auto\", \"apple_carplay\", \"bluetooth\", \"navigation\"]",
+                  "type": "text",
+                  "description": "Multimedia funksiyalari (JSON array)"
+                },
+                {
+                  "key": "cameras",
+                  "value": "[\"rear_camera\", \"parking_sensors\"]",
+                  "type": "text",
+                  "description": "Kameralar (JSON array)"
+                },
+                {
+                  "key": "safetyFeatures",
+                  "value": "[\"abs\", \"esp\", \"airbags_front\", \"airbags_side\"]",
+                  "type": "text",
+                  "description": "Xavfsizlik tizimlari (JSON array)"
+                },
+                {
+                  "key": "airbagsCount",
+                  "value": "6",
+                  "type": "text"
+                },
+                {
+                  "key": "climateControl",
+                  "value": "dual_zone",
+                  "type": "text"
+                },
+                {
+                  "key": "heatedSeats",
+                  "value": "front",
+                  "type": "text"
+                },
+                {
+                  "key": "cruiseControl",
+                  "value": "adaptive",
+                  "type": "text"
+                },
+                {
+                  "key": "keylessEntry",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "startStopButton",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "rainSensor",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "lightSensor",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "hasAccidentHistory",
+                  "value": "false",
+                  "type": "text"
+                },
+                {
+                  "key": "serviceHistory",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "ownersCount",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "countryOfOrigin",
+                  "value": "Korea",
+                  "type": "text"
+                },
+                {
+                  "key": "warranty",
+                  "value": "{\"hasWarranty\": true, \"expiryDate\": \"2025-12-31\", \"description\": \"Zavod kafolati\"}",
+                  "type": "text",
+                  "description": "Kafolat (JSON)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cars",
+              "host": ["{{baseUrl}}"],
+              "path": ["cars"]
+            },
+            "description": "Yangi avtomobil e'loni qo'shish (FormData bilan)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Car",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "images",
+                  "type": "file",
+                  "description": "Yangi rasmlar (ixtiyoriy)"
+                },
+                {
+                  "key": "existingImages",
+                  "value": "[\"/uploads/image1.jpg\", \"/uploads/image2.jpg\"]",
+                  "type": "text",
+                  "description": "Saqlab qolinadigan mavjud rasmlar (JSON array)"
+                },
+                {
+                  "key": "brand",
+                  "value": "Chevrolet",
+                  "type": "text"
+                },
+                {
+                  "key": "model",
+                  "value": "Malibu",
+                  "type": "text"
+                },
+                {
+                  "key": "year",
+                  "value": "2021",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "280000000",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "sale",
+                  "type": "text",
+                  "description": "Status: sale, sold, reserved"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cars/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["cars", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "CAR_ID_HERE",
+                  "description": "Avtomobil ID"
+                }
+              ]
+            },
+            "description": "Avtomobil e'lonini yangilash (faqat owner yoki admin)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Car",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cars/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["cars", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "CAR_ID_HERE",
+                  "description": "Avtomobil ID"
+                }
+              ]
+            },
+            "description": "Avtomobil e'lonini o'chirish (faqat owner yoki admin)"
+          },
+          "response": []
+        },
+        {
+          "name": "Save Car",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cars/:id/save",
+              "host": ["{{baseUrl}}"],
+              "path": ["cars", ":id", "save"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "CAR_ID_HERE",
+                  "description": "Avtomobil ID"
+                }
+              ]
+            },
+            "description": "Avtomobilni sevimlilar (savedCars) ga qo'shish"
+          },
+          "response": []
+        },
+        {
+          "name": "Unsave Car",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cars/:id/save",
+              "host": ["{{baseUrl}}"],
+              "path": ["cars", ":id", "save"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "CAR_ID_HERE",
+                  "description": "Avtomobil ID"
+                }
+              ]
+            },
+            "description": "Avtomobilni sevimlilardan o'chirish"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Similar Cars",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/cars/:id/similar",
+              "host": ["{{baseUrl}}"],
+              "path": ["cars", ":id", "similar"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "CAR_ID_HERE",
+                  "description": "Avtomobil ID"
+                }
+              ]
+            },
+            "description": "O'xshash avtomobillarni olish (bir xil marka, narx +-30%)"
+          },
+          "response": []
+        },
+        {
+          "name": "Make Premium (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"days\": 30\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cars/:id/premium",
+              "host": ["{{baseUrl}}"],
+              "path": ["cars", ":id", "premium"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "CAR_ID_HERE",
+                  "description": "Avtomobil ID"
+                }
+              ]
+            },
+            "description": "Avtomobilni premium qilish (faqat admin). days - premium muddati kunlarda"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Banners",
+      "description": "Banner endpointlari",
+      "item": [
+        {
+          "name": "Get All Banners",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/banners",
+              "host": ["{{baseUrl}}"],
+              "path": ["banners"]
+            },
+            "description": "Barcha faol bannerlarni olish (order bo'yicha tartiblangan)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Banner by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/banners/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["banners", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "BANNER_ID_HERE",
+                  "description": "Banner ID"
+                }
+              ]
+            },
+            "description": "Bitta bannerni olish"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Banner (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "description": "Banner rasmi"
+                },
+                {
+                  "key": "title",
+                  "value": "Yangi banner",
+                  "type": "text",
+                  "description": "Banner sarlavhasi"
+                },
+                {
+                  "key": "link",
+                  "value": "https://example.com",
+                  "type": "text",
+                  "description": "Banner havolasi"
+                },
+                {
+                  "key": "order",
+                  "value": "1",
+                  "type": "text",
+                  "description": "Tartib raqami"
+                },
+                {
+                  "key": "isActive",
+                  "value": "true",
+                  "type": "text",
+                  "description": "Faolmi"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/banners",
+              "host": ["{{baseUrl}}"],
+              "path": ["banners"]
+            },
+            "description": "Yangi banner yaratish (faqat admin)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Banner (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "description": "Yangi rasm (ixtiyoriy)"
+                },
+                {
+                  "key": "title",
+                  "value": "Yangilangan banner",
+                  "type": "text"
+                },
+                {
+                  "key": "link",
+                  "value": "https://example.com/new",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/banners/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["banners", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "BANNER_ID_HERE",
+                  "description": "Banner ID"
+                }
+              ]
+            },
+            "description": "Bannerni yangilash (faqat admin)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Banner (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/banners/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["banners", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "BANNER_ID_HERE",
+                  "description": "Banner ID"
+                }
+              ]
+            },
+            "description": "Bannerni o'chirish (faqat admin)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Banner Order (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/banners/:id/order",
+              "host": ["{{baseUrl}}"],
+              "path": ["banners", ":id", "order"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "BANNER_ID_HERE",
+                  "description": "Banner ID"
+                }
+              ]
+            },
+            "description": "Banner tartibini o'zgartirish (faqat admin)"
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Banner (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/banners/:id/toggle",
+              "host": ["{{baseUrl}}"],
+              "path": ["banners", ":id", "toggle"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "BANNER_ID_HERE",
+                  "description": "Banner ID"
+                }
+              ]
+            },
+            "description": "Banner faolligini yoqish/o'chirish (faqat admin)"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

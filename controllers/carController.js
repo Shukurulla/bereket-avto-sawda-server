@@ -2,6 +2,61 @@ const Car = require("../models/Car");
 const User = require("../models/User");
 const { postCarToChannel, updateCarPost, deleteCarPost } = require("../utils/telegramBot");
 
+// Kiril -> Lotin transliteratsiya
+const cyrillicToLatin = (text) => {
+  const map = {
+    'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo',
+    'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm',
+    'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
+    'ф': 'f', 'х': 'h', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'sch', 'ъ': '',
+    'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya',
+    'ў': 'o\'', 'қ': 'q', 'ғ': 'g\'', 'ҳ': 'h'
+  };
+  return text.toLowerCase().split('').map(char => map[char] || char).join('');
+};
+
+// Matnni normallashtirish (kirilni lotinga, kichik harfga)
+const normalizeText = (text) => {
+  if (!text) return '';
+  return cyrillicToLatin(text.toLowerCase().trim());
+};
+
+// Levenshtein distance - ikki so'z orasidagi farq
+const levenshteinDistance = (str1, str2) => {
+  const m = str1.length;
+  const n = str2.length;
+  const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (str1[i - 1] === str2[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1];
+      } else {
+        dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+      }
+    }
+  }
+  return dp[m][n];
+};
+
+// O'xshashlik foizini hisoblash (0-100)
+const calculateSimilarity = (str1, str2) => {
+  const s1 = normalizeText(str1);
+  const s2 = normalizeText(str2);
+
+  if (s1 === s2) return 100;
+  if (!s1 || !s2) return 0;
+
+  const distance = levenshteinDistance(s1, s2);
+  const maxLen = Math.max(s1.length, s2.length);
+  const similarity = ((maxLen - distance) / maxLen) * 100;
+
+  return Math.round(similarity);
+};
+
 // @desc    Barcha avtomobillarni olish (filter bilan)
 // @route   GET /api/cars
 // @access  Public
@@ -257,9 +312,49 @@ exports.getCar = async (req, res) => {
     car.views = (car.views || 0) + 1;
     await car.save();
 
+    // Narx reytingini hisoblash - o'xshash mashinalar orasida (fuzzy matching bilan)
+    let priceRating = null;
+    if (car.price) {
+      // Barcha sotuvdagi mashinalarni olish
+      const allCars = await Car.find({
+        status: 'sale',
+        price: { $exists: true, $gt: 0 }
+      }).select('brand model price');
+
+      // Fuzzy matching bilan o'xshash mashinalarni topish (70%+ o'xshashlik)
+      const SIMILARITY_THRESHOLD = 70;
+      const similarCars = allCars.filter(c => {
+        const brandSimilarity = calculateSimilarity(car.brand, c.brand);
+        const modelSimilarity = calculateSimilarity(car.model, c.model);
+        // Ikkala maydon ham 70%+ o'xshash bo'lishi kerak
+        return brandSimilarity >= SIMILARITY_THRESHOLD && modelSimilarity >= SIMILARITY_THRESHOLD;
+      });
+
+      if (similarCars.length > 1) {
+        // Narxlarni sortlash (arzondan qimmatga)
+        const prices = similarCars.map(c => c.price).sort((a, b) => a - b);
+        const currentCarIndex = prices.findIndex(p => p >= car.price);
+
+        // Arzonlik foizi: qancha arzon bo'lsa, shuncha yuqori ball
+        // Eng arzon = 100%, eng qimmat = 0%
+        const position = currentCarIndex === -1 ? prices.length - 1 : currentCarIndex;
+        const percentile = ((prices.length - 1 - position) / (prices.length - 1)) * 100;
+
+        priceRating = {
+          percentage: Math.round(percentile),
+          totalSimilar: similarCars.length,
+          position: position + 1, // 1 dan boshlanadigan pozitsiya
+          cheapest: prices[0],
+          mostExpensive: prices[prices.length - 1],
+          average: Math.round(prices.reduce((a, b) => a + b, 0) / prices.length)
+        };
+      }
+    }
+
     res.status(200).json({
       success: true,
       data: car,
+      priceRating
     });
   } catch (error) {
     res.status(500).json({

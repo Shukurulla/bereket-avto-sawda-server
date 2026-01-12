@@ -166,6 +166,12 @@ const carSchema = new mongoose.Schema({
     default: false
   },
 
+  // Kelishim (narxda kelishish mumkinmi)
+  hasNegotiation: {
+    type: Boolean,
+    default: false
+  },
+
   // Chexol turi
   coverType: {
     type: String,
