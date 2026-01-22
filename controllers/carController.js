@@ -273,12 +273,13 @@ exports.getCars = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      count: cars.length,
+      data: cars,
       total: total,
       page: page,
-      pages: Math.ceil(total / limit),
+      limit: limit,
+      totalPages: Math.ceil(total / limit),
+      count: cars.length,
       hasMore: page * limit < total,
-      data: cars,
     });
   } catch (error) {
     res.status(500).json({
@@ -712,13 +713,28 @@ exports.getSimilarCars = async (req, res) => {
 // @access  Private
 exports.getMyCars = async (req, res) => {
   try {
+    // Pagination
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 15;
+    const skip = (page - 1) * limit;
+
+    // Total count
+    const total = await Car.countDocuments({ owner: req.user.id });
+
     const cars = await Car.find({ owner: req.user.id })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     res.status(200).json({
       success: true,
+      data: cars,
+      total: total,
+      page: page,
+      limit: limit,
+      totalPages: Math.ceil(total / limit),
       count: cars.length,
-      cars,
+      hasMore: page * limit < total,
     });
   } catch (error) {
     res.status(500).json({

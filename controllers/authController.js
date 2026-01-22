@@ -208,9 +208,10 @@ exports.updateProfile = async (req, res) => {
 exports.deleteAccount = async (req, res) => {
   try {
     const userId = req.user.id;
+    const { password } = req.body;
 
-    // Foydalanuvchini topish
-    const user = await User.findById(userId);
+    // Foydalanuvchini topish (parol bilan)
+    const user = await User.findById(userId).select('+password');
 
     if (!user) {
       return res.status(404).json({
@@ -219,14 +220,30 @@ exports.deleteAccount = async (req, res) => {
       });
     }
 
-    // Foydalanuvchining barcha e'lonlarini o'chirish
-    await Car.deleteMany({ owner: userId });
+    // Parol tekshiruvi (agar parol yuborilgan bo'lsa)
+    if (password) {
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+        return res.status(401).json({
+          success: false,
+          message: t(req, 'auth.invalidCredentials')
+        });
+      }
+    }
+
+    // Avval foydalanuvchining e'lonlari ID larini olish
+    const userCarIds = await Car.find({ owner: userId }).distinct('_id');
 
     // Boshqa userlarning savedCars dan bu user e'lonlarini olib tashlash
-    await User.updateMany(
-      {},
-      { $pull: { savedCars: { $in: await Car.find({ owner: userId }).distinct('_id') } } }
-    );
+    if (userCarIds.length > 0) {
+      await User.updateMany(
+        { _id: { $ne: userId } },
+        { $pull: { savedCars: { $in: userCarIds } } }
+      );
+    }
+
+    // Foydalanuvchining barcha e'lonlarini o'chirish
+    await Car.deleteMany({ owner: userId });
 
     // Foydalanuvchini o'chirish
     await User.findByIdAndDelete(userId);
@@ -297,12 +314,29 @@ exports.deleteUser = async (req, res) => {
 // @access  Private/Admin
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select('-password').sort({ createdAt: -1 });
+    // Pagination
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 15;
+    const skip = (page - 1) * limit;
+
+    // Total count
+    const total = await User.countDocuments();
+
+    const users = await User.find()
+      .select('-password')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     res.status(200).json({
       success: true,
+      data: users,
+      total: total,
+      page: page,
+      limit: limit,
+      totalPages: Math.ceil(total / limit),
       count: users.length,
-      users
+      hasMore: page * limit < total,
     });
   } catch (error) {
     res.status(500).json({
