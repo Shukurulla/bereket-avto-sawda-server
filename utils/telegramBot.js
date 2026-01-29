@@ -30,7 +30,10 @@ const initBot = () => {
 // Rasmni yuklash
 const uploadPhoto = async (photoPath) => {
   try {
-    const fullPath = path.join(__dirname, "..", photoPath);
+    // photoPath "/uploads/image.webp" formatida keladi
+    // Boshidagi "/" ni olib tashlaymiz
+    const relativePath = photoPath.startsWith('/') ? photoPath.slice(1) : photoPath;
+    const fullPath = path.join(__dirname, "..", relativePath);
 
     // Faylning mavjudligini tekshirish
     if (!fs.existsSync(fullPath)) {
