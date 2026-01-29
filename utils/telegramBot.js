@@ -11,7 +11,7 @@ const CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID || "@avto_satiw";
 let bot = null;
 
 // Bot'ni ishga tushirish
-const initBot = () => {
+const initBot = async () => {
   if (!BOT_TOKEN) {
     console.log("⚠️  TELEGRAM_BOT_TOKEN topilmadi. Telegram bot o'chirilgan.");
     return null;
@@ -20,6 +20,12 @@ const initBot = () => {
   try {
     bot = new TelegramBot(BOT_TOKEN, { polling: false });
     console.log("✅ Telegram bot ishga tushdi");
+    console.log(`📢 Kanal ID: ${CHANNEL_ID}`);
+
+    // Bot ma'lumotlarini olish
+    const me = await bot.getMe();
+    console.log(`🤖 Bot username: @${me.username}`);
+
     return bot;
   } catch (error) {
     console.error("❌ Telegram bot xatolik:", error.message);
@@ -157,11 +163,13 @@ const formatCarMessage = (car) => {
 // Kanalga post yuborish
 const postCarToChannel = async (car) => {
   if (!bot) {
-    console.log("Telegram bot ishlamayapti");
+    console.log("❌ Telegram bot ishlamayapti - bot null");
     return null;
   }
 
   try {
+    console.log(`📤 Telegram'ga yuklash boshlanmoqda: ${car.brand} ${car.model}`);
+
     // Tekshirish: bu car allaqachon shu kanalga yuklanganmi?
     if (car.telegramPosts && car.telegramPosts.length > 0) {
       const existingPost = car.telegramPosts.find(
@@ -177,40 +185,36 @@ const postCarToChannel = async (car) => {
 
     // Rasmlar bilan yuborish
     if (car.images && car.images.length > 0) {
-      const photos = [];
+      // Birinchi rasmni olish
+      const firstImagePath = await uploadPhoto(car.images[0]);
 
-      // Eng ko'pi bilan 10 ta rasm (Telegram MediaGroup limit)
-      const imagesToSend = car.images.slice(0, 10);
+      if (firstImagePath) {
+        console.log(`📷 Birinchi rasm topildi: ${firstImagePath}`);
 
-      for (let i = 0; i < imagesToSend.length; i++) {
-        const photoPath = await uploadPhoto(imagesToSend[i]);
-        if (photoPath) {
-          photos.push({
-            type: "photo",
-            media: photoPath,
-            caption: i === 0 ? message : "",
-            parse_mode: i === 0 ? "Markdown" : undefined,
-          });
-        }
-      }
+        // Bitta rasm bilan yuborish (sendPhoto ishonchli ishlaydi)
+        const result = await bot.sendPhoto(CHANNEL_ID, firstImagePath, {
+          caption: message,
+          parse_mode: "Markdown",
+        });
 
-      if (photos.length > 0) {
-        const result = await bot.sendMediaGroup(CHANNEL_ID, photos);
         console.log(`✅ Telegram'ga yuklandi: ${car.brand} ${car.model}`);
 
         // Yangi post ma'lumotini saqlash
         if (!car.telegramPosts) car.telegramPosts = [];
         car.telegramPosts.push({
           channelId: CHANNEL_ID,
-          postId: result[0].message_id
+          postId: result.message_id
         });
         await car.save();
 
-        return result[0].message_id; // Birinchi message ID
+        return result.message_id;
+      } else {
+        console.log(`⚠️ Birinchi rasm topilmadi: ${car.images[0]}`);
       }
     }
 
     // Agar rasm bo'lmasa, faqat matn yuborish
+    console.log(`📤 Rasmsiz matn yuborilmoqda...`);
     const result = await bot.sendMessage(CHANNEL_ID, message, {
       parse_mode: "Markdown",
       disable_web_page_preview: false,
@@ -227,7 +231,8 @@ const postCarToChannel = async (car) => {
 
     return result.message_id;
   } catch (error) {
-    console.error("Telegram'ga yuklashda xatolik:", error.message);
+    console.error("❌ Telegram'ga yuklashda xatolik:", error.message);
+    console.error("Stack:", error.stack);
     return null;
   }
 };

@@ -11,8 +11,12 @@ dotenv.config();
 // Database ulanish
 connectDB();
 
-// Telegram bot ishga tushirish
-initBot();
+// Telegram bot ishga tushirish (async)
+initBot().then(() => {
+  console.log("🚀 Telegram bot tayyor");
+}).catch(err => {
+  console.error("❌ Telegram bot ishga tushmadi:", err.message);
+});
 
 // Fake views cron job ishga tushirish
 startFakeViewsCron();
