@@ -73,33 +73,36 @@ const uploadPhoto = async (photoPath) => {
   }
 };
 
-// Markdown uchun maxsus belgilarni escape qilish
-const escapeMarkdown = (text) => {
+// HTML uchun maxsus belgilarni escape qilish
+const escapeHtml = (text) => {
   if (!text) return '';
-  return String(text).replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 };
 
-// Car ma'lumotlarini formatlash
+// Car ma'lumotlarini formatlash (HTML format)
 const formatCarMessage = (car) => {
   const baseUrl = process.env.FRONTEND_URL || "https://avto.kerek.uz";
   const carUrl = `${baseUrl}/car/${car._id}`;
 
   // Brand va model ni escape qilish
-  const brand = escapeMarkdown(car.brand);
-  const model = escapeMarkdown(car.model);
+  const brand = escapeHtml(car.brand);
+  const model = escapeHtml(car.model);
 
-  let message = `🚗 *${brand} ${model}*\n`;
+  let message = `🚗 <b>${brand} ${model}</b>\n`;
   message += `━━━━━━━━━━━━━━━━━━\n\n`;
 
   // Asosiy ma'lumotlar (eng muhim)
   if (car.price) {
-    message += `💰 *Narxi: ${car.price.toLocaleString()} so'm*\n\n`;
+    message += `💰 <b>Narxi: ${car.price.toLocaleString()} so'm</b>\n\n`;
   }
 
-  if (car.year) message += `📅 Yili: *${car.year}*\n`;
+  if (car.year) message += `📅 Yili: <b>${car.year}</b>\n`;
 
   if (car.mileage !== undefined && car.mileage !== null) {
-    message += `📊 Probeg: *${car.mileage.toLocaleString()} km*\n`;
+    message += `📊 Probeg: <b>${car.mileage.toLocaleString()} km</b>\n`;
   }
 
   // Texnik xususiyatlar
@@ -110,9 +113,9 @@ const formatCarMessage = (car) => {
       robot: "Robot",
       cvt: "CVT",
     };
-    message += `⚙️ Korobka: *${
-      transmissionMap[car.transmission] || escapeMarkdown(car.transmission)
-    }*\n`;
+    message += `⚙️ Korobka: <b>${
+      transmissionMap[car.transmission] || escapeHtml(car.transmission)
+    }</b>\n`;
   }
 
   if (car.fuelType && car.fuelType.length > 0) {
@@ -121,16 +124,16 @@ const formatCarMessage = (car) => {
       diesel: "Dizel",
       electric: "Elektr",
       hybrid: "Gibrid",
-      hybrid_plugin: "Plugin\\-Gibrid",
+      hybrid_plugin: "Plugin-Gibrid",
       methane: "Metan",
       propane: "Propan",
     };
-    const fuels = car.fuelType.map((f) => fuelMap[f] || escapeMarkdown(f)).join(", ");
-    message += `⚡ Yoqilg'i: *${fuels}*\n`;
+    const fuels = car.fuelType.map((f) => fuelMap[f] || escapeHtml(f)).join(", ");
+    message += `⚡ Yoqilg'i: <b>${fuels}</b>\n`;
   }
 
   if (car.engineVolume && !car.fuelType?.includes("electric")) {
-    message += `🔧 Dvigatel: *${car.engineVolume}L*\n`;
+    message += `🔧 Dvigatel: <b>${car.engineVolume}L</b>\n`;
   }
 
   if (car.bodyType) {
@@ -147,11 +150,11 @@ const formatCarMessage = (car) => {
       convertible: "Kabriolet",
       other: "Boshqa",
     };
-    message += `🚙 Kuzov: ${bodyTypeMap[car.bodyType] || escapeMarkdown(car.bodyType)}\n`;
+    message += `🚙 Kuzov: ${bodyTypeMap[car.bodyType] || escapeHtml(car.bodyType)}\n`;
   }
 
   if (car.color) {
-    message += `🎨 Rangi: ${escapeMarkdown(car.color)}\n`;
+    message += `🎨 Rangi: ${escapeHtml(car.color)}\n`;
   }
 
   // Joylashuv va holat
@@ -159,13 +162,13 @@ const formatCarMessage = (car) => {
 
   if (car.location) {
     if (typeof car.location === "string") {
-      message += `📍 Manzil: *${escapeMarkdown(car.location)}*\n`;
+      message += `📍 Manzil: <b>${escapeHtml(car.location)}</b>\n`;
     } else if (car.location.city || car.location.region) {
       const location = [car.location.city, car.location.region]
         .filter(Boolean)
-        .map(l => escapeMarkdown(l))
+        .map(l => escapeHtml(l))
         .join(", ");
-      message += `📍 Manzil: *${location}*\n`;
+      message += `📍 Manzil: <b>${location}</b>\n`;
     }
   }
 
@@ -175,17 +178,17 @@ const formatCarMessage = (car) => {
       good: "Yaxshi",
       normal: "O'rtacha",
     };
-    message += `✨ Holati: ${conditionMap[car.condition] || escapeMarkdown(car.condition)}\n`;
+    message += `✨ Holati: ${conditionMap[car.condition] || escapeHtml(car.condition)}\n`;
   }
 
   // Kontakt
   message += `\n━━━━━━━━━━━━━━━━━━\n`;
 
   if (car.contact?.phone) {
-    message += `📞 *Telefon: ${escapeMarkdown(car.contact.phone)}*\n`;
+    message += `📞 <b>Telefon: ${escapeHtml(car.contact.phone)}</b>\n`;
   }
 
-  message += `\n🔗 [📱 Batafsil ma'lumot](${carUrl})`;
+  message += `\n🔗 <a href="${carUrl}">📱 Batafsil ma'lumot</a>`;
 
   return message;
 };
@@ -230,7 +233,7 @@ const postCarToChannel = async (car) => {
         // Bitta rasm bilan yuborish (sendPhoto ishonchli ishlaydi)
         const result = await bot.sendPhoto(CHANNEL_ID, firstImagePath, {
           caption: message,
-          parse_mode: "Markdown",
+          parse_mode: "HTML",
         });
 
         console.log(`✅ Telegram'ga yuklandi: ${car.brand} ${car.model}`);
@@ -252,7 +255,7 @@ const postCarToChannel = async (car) => {
     // Agar rasm bo'lmasa, faqat matn yuborish
     console.log(`📤 Rasmsiz matn yuborilmoqda...`);
     const result = await bot.sendMessage(CHANNEL_ID, message, {
-      parse_mode: "Markdown",
+      parse_mode: "HTML",
       disable_web_page_preview: false,
     });
     console.log(`✅ Telegram'ga yuklandi (rasmsiz): ${car.brand} ${car.model}`);
@@ -294,7 +297,7 @@ const updateCarPost = async (car) => {
     await bot.editMessageCaption(message, {
       chat_id: CHANNEL_ID,
       message_id: post.postId,
-      parse_mode: "Markdown",
+      parse_mode: "HTML",
     });
 
     console.log(`✅ Telegram post yangilandi: ${car.brand} ${car.model}`);
