@@ -743,3 +743,40 @@ exports.getMyCars = async (req, res) => {
     });
   }
 };
+
+// @desc    Barcha avtomobillarni o'chirish (Admin only)
+// @route   DELETE /api/cars/all
+// @access  Private/Admin
+exports.deleteAllCars = async (req, res) => {
+  try {
+    const { deleteCarPost } = require("../utils/telegramBot");
+
+    // Barcha mashinalarni olish (telegram postlarni o'chirish uchun)
+    const cars = await Car.find({});
+
+    // Har bir mashina uchun telegram postni o'chirish
+    for (const car of cars) {
+      if (car.telegramPosts && car.telegramPosts.length > 0) {
+        try {
+          await deleteCarPost(car);
+        } catch (err) {
+          console.error(`Telegram post o'chirishda xatolik: ${car._id}`, err.message);
+        }
+      }
+    }
+
+    // Barcha mashinalarni o'chirish
+    const result = await Car.deleteMany({});
+
+    res.status(200).json({
+      success: true,
+      message: `${result.deletedCount} ta avtomobil o'chirildi`,
+      deletedCount: result.deletedCount,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

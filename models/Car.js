@@ -436,7 +436,7 @@ const carSchema = new mongoose.Schema({
 
   status: {
     type: String,
-    enum: ['sale', 'sold', 'reserved'],
+    enum: ['sale', 'sold', 'reserved', 'expired'],
     default: 'sale'
   },
 

@@ -53,7 +53,9 @@ const compressImages = async (req, res, next) => {
       const thumbnailPath = path.join('uploads/thumbnails', thumbnailFilename);
 
       // Asl rasmni siqish va saqlash (max 1920x1080, 80% quality)
+      // .rotate() - EXIF ma'lumotlariga qarab avtomatik to'g'ri yo'nalishga aylantiradi
       await sharp(file.buffer)
+        .rotate() // EXIF orientation bo'yicha avtomatik rotate (vertical foto muammosini hal qiladi)
         .resize(1920, 1080, {
           fit: 'inside',
           withoutEnlargement: true
@@ -63,6 +65,7 @@ const compressImages = async (req, res, next) => {
 
       // Thumbnail yaratish (max 400x300, 70% quality)
       await sharp(file.buffer)
+        .rotate() // EXIF orientation bo'yicha avtomatik rotate
         .resize(400, 300, {
           fit: 'cover',
           position: 'center'

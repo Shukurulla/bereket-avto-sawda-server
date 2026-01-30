@@ -6,6 +6,7 @@ const {
   createCar,
   updateCar,
   deleteCar,
+  deleteAllCars,
   saveCar,
   unsaveCar,
   makePremium,
@@ -21,6 +22,7 @@ router.route('/')
   .post(protect, upload.array('images', 10), compressImages, createCar);
 
 router.get('/my', protect, getMyCars);
+router.delete('/all', protect, adminOnly, deleteAllCars);
 
 router.route('/:id')
   .get(getCar)

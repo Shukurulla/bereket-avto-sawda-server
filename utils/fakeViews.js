@@ -45,6 +45,39 @@ const addFakeViews = async () => {
 };
 
 /**
+ * 30 kundan eski mashinalarni avtomatik deaktiv qilish
+ * Status 'sale' dan 'expired' ga o'zgaradi
+ */
+const deactivateOldCars = async () => {
+  try {
+    console.log('🔄 30 kundan eski mashinalarni tekshirish...');
+
+    // 30 kun oldingi sana
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    // 30 kundan eski va hali sotuvda bo'lgan mashinalarni topish
+    const result = await Car.updateMany(
+      {
+        status: 'sale',
+        createdAt: { $lt: thirtyDaysAgo }
+      },
+      {
+        $set: { status: 'expired' }
+      }
+    );
+
+    if (result.modifiedCount > 0) {
+      console.log(`✅ ${result.modifiedCount} ta mashina avtomatik deaktiv qilindi (30 kundan eski)`);
+    } else {
+      console.log('✅ Deaktiv qilish uchun eski mashina topilmadi');
+    }
+  } catch (error) {
+    console.error('❌ Eski mashinalarni deaktiv qilishda xatolik:', error.message);
+  }
+};
+
+/**
  * Cron job ni ishga tushirish
  * Har soatda ishga tushadi
  */
@@ -55,10 +88,17 @@ const startFakeViewsCron = () => {
     addFakeViews();
   });
 
+  // Har kuni tunda (00:00) eski mashinalarni tekshirish
+  cron.schedule('0 0 * * *', () => {
+    console.log('⏰ Kunlik eski mashinalar tekshiruvi boshlandi');
+    deactivateOldCars();
+  });
+
   console.log('✅ Fake views cron job ishga tushirildi (har soat)');
+  console.log('✅ Eski mashinalar deaktivatsiyasi cron job ishga tushirildi (har kuni)');
 
   // Birinchi marta darhol ishga tushirish (test uchun)
   // addFakeViews();
 };
 
-module.exports = { startFakeViewsCron, addFakeViews };
+module.exports = { startFakeViewsCron, addFakeViews, deactivateOldCars };

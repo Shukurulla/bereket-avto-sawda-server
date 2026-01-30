@@ -21,56 +21,9 @@ initBot().then(() => {
 // Fake views cron job ishga tushirish
 startFakeViewsCron();
 
-// Eski carlarni avtomatik yuklash
-const uploadOldCars = async () => {
-  try {
-    const Car = require("./models/Car");
-    const { postCarToChannel } = require("./utils/telegramBot");
-
-    // Hozirgi kanal uchun yuklanmagan carlarni topish
-    const CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID;
-
-    const cars = await Car.find({
-      $and: [
-        { status: "sale" },
-        {
-          $or: [
-            { telegramPosts: { $exists: false } },
-            { telegramPosts: { $size: 0 } },
-            {
-              telegramPosts: {
-                $not: { $elemMatch: { channelId: CHANNEL_ID } },
-              },
-            },
-          ],
-        },
-      ],
-    }).limit(5); // Birinchi 5 ta
-
-    if (cars.length > 0) {
-      console.log(
-        `📤 ${cars.length} ta car ${CHANNEL_ID} kanalga yuklanmoqda...`
-      );
-
-      for (const car of cars) {
-        try {
-          const postId = await postCarToChannel(car);
-          if (postId) {
-            console.log(`✅ ${car.brand} ${car.model} yuklandi`);
-          }
-          await new Promise((r) => setTimeout(r, 3000));
-        } catch (err) {
-          console.error(`❌ ${car.brand} ${car.model} xatolik:`, err.message);
-        }
-      }
-    }
-  } catch (error) {
-    console.error("Avtomatik yuklashda xatolik:", error.message);
-  }
-};
-
-// 10 soniyadan keyin yuklashni boshlash
-setTimeout(uploadOldCars, 10000);
+// OLIB TASHLANDI: Eski carlarni avtomatik yuklash
+// Bu funksiya har safar server ishga tushganda barcha mashinalarni telegramga yuborardi
+// Endi faqat yangi mashina qo'shilganda telegramga yuboriladi (carController.createCar da)
 
 const app = express();
 
@@ -82,6 +35,7 @@ const allowedOrigins = [
   "http://localhost:5176",
   "http://localhost:5177",
   "http://localhost:5178",
+  "http://localhost:3000",
   "https://bereket-avto.kerek.uz",
   "https://avto.kerek.uz",
   "http://bereket-avto.kerek.uz",
