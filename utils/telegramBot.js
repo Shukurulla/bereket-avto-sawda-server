@@ -9,28 +9,47 @@ const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID || "@avto_satiw";
 
 let bot = null;
+let botInitPromise = null;
 
 // Bot'ni ishga tushirish
 const initBot = async () => {
+  // Agar bot allaqachon ishga tushgan bo'lsa
+  if (bot) {
+    return bot;
+  }
+
+  // Agar ishga tushirish jarayoni davom etayotgan bo'lsa, kutish
+  if (botInitPromise) {
+    return botInitPromise;
+  }
+
   if (!BOT_TOKEN) {
     console.log("⚠️  TELEGRAM_BOT_TOKEN topilmadi. Telegram bot o'chirilgan.");
     return null;
   }
 
-  try {
-    bot = new TelegramBot(BOT_TOKEN, { polling: false });
-    console.log("✅ Telegram bot ishga tushdi");
-    console.log(`📢 Kanal ID: ${CHANNEL_ID}`);
+  // Ishga tushirish jarayonini boshlash
+  botInitPromise = (async () => {
+    try {
+      bot = new TelegramBot(BOT_TOKEN, { polling: false });
+      console.log("✅ Telegram bot ishga tushdi");
+      console.log(`📢 Kanal ID: ${CHANNEL_ID}`);
 
-    // Bot ma'lumotlarini olish
-    const me = await bot.getMe();
-    console.log(`🤖 Bot username: @${me.username}`);
+      // Bot ma'lumotlarini olish
+      const me = await bot.getMe();
+      console.log(`🤖 Bot username: @${me.username}`);
 
-    return bot;
-  } catch (error) {
-    console.error("❌ Telegram bot xatolik:", error.message);
-    return null;
-  }
+      return bot;
+    } catch (error) {
+      console.error("❌ Telegram bot xatolik:", error.message);
+      bot = null;
+      return null;
+    } finally {
+      botInitPromise = null;
+    }
+  })();
+
+  return botInitPromise;
 };
 
 // Rasmni yuklash
@@ -162,6 +181,12 @@ const formatCarMessage = (car) => {
 
 // Kanalga post yuborish
 const postCarToChannel = async (car) => {
+  // Bot null bo'lsa, ishga tushirishga harakat qilish
+  if (!bot) {
+    console.log("⚠️ Bot null, ishga tushirishga harakat qilinmoqda...");
+    await initBot();
+  }
+
   if (!bot) {
     console.log("❌ Telegram bot ishlamayapti - bot null");
     return null;
@@ -239,6 +264,7 @@ const postCarToChannel = async (car) => {
 
 // Postni yangilash
 const updateCarPost = async (car) => {
+  if (!bot) await initBot();
   if (!bot || !car.telegramPosts || car.telegramPosts.length === 0) {
     return null;
   }
@@ -270,6 +296,7 @@ const updateCarPost = async (car) => {
 
 // Postni o'chirish
 const deleteCarPost = async (car) => {
+  if (!bot) await initBot();
   if (!bot || !car.telegramPosts || car.telegramPosts.length === 0) {
     return false;
   }
