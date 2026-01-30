@@ -73,12 +73,22 @@ const uploadPhoto = async (photoPath) => {
   }
 };
 
+// Markdown uchun maxsus belgilarni escape qilish
+const escapeMarkdown = (text) => {
+  if (!text) return '';
+  return String(text).replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
+};
+
 // Car ma'lumotlarini formatlash
 const formatCarMessage = (car) => {
   const baseUrl = process.env.FRONTEND_URL || "https://avto.kerek.uz";
   const carUrl = `${baseUrl}/car/${car._id}`;
 
-  let message = `🚗 *${car.brand} ${car.model}*\n`;
+  // Brand va model ni escape qilish
+  const brand = escapeMarkdown(car.brand);
+  const model = escapeMarkdown(car.model);
+
+  let message = `🚗 *${brand} ${model}*\n`;
   message += `━━━━━━━━━━━━━━━━━━\n\n`;
 
   // Asosiy ma'lumotlar (eng muhim)
@@ -101,7 +111,7 @@ const formatCarMessage = (car) => {
       cvt: "CVT",
     };
     message += `⚙️ Korobka: *${
-      transmissionMap[car.transmission] || car.transmission
+      transmissionMap[car.transmission] || escapeMarkdown(car.transmission)
     }*\n`;
   }
 
@@ -111,11 +121,11 @@ const formatCarMessage = (car) => {
       diesel: "Dizel",
       electric: "Elektr",
       hybrid: "Gibrid",
-      hybrid_plugin: "Plugin-Gibrid",
+      hybrid_plugin: "Plugin\\-Gibrid",
       methane: "Metan",
       propane: "Propan",
     };
-    const fuels = car.fuelType.map((f) => fuelMap[f] || f).join(", ");
+    const fuels = car.fuelType.map((f) => fuelMap[f] || escapeMarkdown(f)).join(", ");
     message += `⚡ Yoqilg'i: *${fuels}*\n`;
   }
 
@@ -137,11 +147,11 @@ const formatCarMessage = (car) => {
       convertible: "Kabriolet",
       other: "Boshqa",
     };
-    message += `🚙 Kuzov: ${bodyTypeMap[car.bodyType] || car.bodyType}\n`;
+    message += `🚙 Kuzov: ${bodyTypeMap[car.bodyType] || escapeMarkdown(car.bodyType)}\n`;
   }
 
   if (car.color) {
-    message += `🎨 Rangi: ${car.color}\n`;
+    message += `🎨 Rangi: ${escapeMarkdown(car.color)}\n`;
   }
 
   // Joylashuv va holat
@@ -149,10 +159,11 @@ const formatCarMessage = (car) => {
 
   if (car.location) {
     if (typeof car.location === "string") {
-      message += `📍 Manzil: *${car.location}*\n`;
+      message += `📍 Manzil: *${escapeMarkdown(car.location)}*\n`;
     } else if (car.location.city || car.location.region) {
       const location = [car.location.city, car.location.region]
         .filter(Boolean)
+        .map(l => escapeMarkdown(l))
         .join(", ");
       message += `📍 Manzil: *${location}*\n`;
     }
@@ -164,14 +175,14 @@ const formatCarMessage = (car) => {
       good: "Yaxshi",
       normal: "O'rtacha",
     };
-    message += `✨ Holati: ${conditionMap[car.condition] || car.condition}\n`;
+    message += `✨ Holati: ${conditionMap[car.condition] || escapeMarkdown(car.condition)}\n`;
   }
 
   // Kontakt
   message += `\n━━━━━━━━━━━━━━━━━━\n`;
 
   if (car.contact?.phone) {
-    message += `📞 *Telefon: ${car.contact.phone}*\n`;
+    message += `📞 *Telefon: ${escapeMarkdown(car.contact.phone)}*\n`;
   }
 
   message += `\n🔗 [📱 Batafsil ma'lumot](${carUrl})`;
