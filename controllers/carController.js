@@ -660,6 +660,37 @@ exports.makePremium = async (req, res) => {
   }
 };
 
+// @desc    Status o'zgartirish (sale <-> sold)
+// @route   PUT /api/cars/:id/status
+// @access  Private/Admin
+exports.toggleStatus = async (req, res) => {
+  try {
+    const car = await Car.findById(req.params.id);
+
+    if (!car) {
+      return res.status(404).json({
+        success: false,
+        message: "Автомобил табылмады",
+      });
+    }
+
+    // Status'ni o'zgartirish
+    car.status = car.status === "sale" ? "sold" : "sale";
+    await car.save();
+
+    res.status(200).json({
+      success: true,
+      data: car,
+      message: car.status === "sold" ? "Mashina sotilgan deb belgilandi" : "Mashina sotuvga qaytarildi",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 // @desc    O'xshash avtomobillarni olish
 // @route   GET /api/cars/:id/similar
 // @access  Public

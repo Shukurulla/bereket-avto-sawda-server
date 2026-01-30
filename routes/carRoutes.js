@@ -10,6 +10,7 @@ const {
   saveCar,
   unsaveCar,
   makePremium,
+  toggleStatus,
   getSimilarCars
 } = require('../controllers/carController');
 const { protect, adminOnly } = require('../middleware/auth');
@@ -35,5 +36,6 @@ router.route('/:id/save')
 
 router.get('/:id/similar', getSimilarCars);
 router.put('/:id/premium', protect, adminOnly, makePremium);
+router.put('/:id/status', protect, adminOnly, toggleStatus);
 
 module.exports = router;
