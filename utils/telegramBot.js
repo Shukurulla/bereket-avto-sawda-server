@@ -224,19 +224,48 @@ const postCarToChannel = async (car) => {
 
     // Rasmlar bilan yuborish
     if (car.images && car.images.length > 0) {
-      // Birinchi rasmni olish
-      const firstImagePath = await uploadPhoto(car.images[0]);
+      // Barcha rasmlarni tekshirish va to'plash
+      const validPhotoPaths = [];
+      for (const imagePath of car.images) {
+        const fullPath = await uploadPhoto(imagePath);
+        if (fullPath) {
+          validPhotoPaths.push(fullPath);
+        }
+      }
 
-      if (firstImagePath) {
-        console.log(`📷 Birinchi rasm topildi: ${firstImagePath}`);
+      if (validPhotoPaths.length > 0) {
+        console.log(`📷 ${validPhotoPaths.length} ta rasm topildi`);
 
-        // Bitta rasm bilan yuborish (sendPhoto ishonchli ishlaydi)
-        const result = await bot.sendPhoto(CHANNEL_ID, firstImagePath, {
-          caption: message,
-          parse_mode: "HTML",
-        });
+        let result;
 
-        console.log(`✅ Telegram'ga yuklandi: ${car.brand} ${car.model}`);
+        // Agar 2 va undan ko'p rasm bo'lsa, sendMediaGroup ishlatish
+        if (validPhotoPaths.length >= 2) {
+          // Media guruhini tayyorlash
+          const mediaGroup = validPhotoPaths.map((photoPath, index) => ({
+            type: "photo",
+            media: fs.createReadStream(photoPath),
+            // Faqat birinchi rasmga caption qo'shish
+            ...(index === 0 && {
+              caption: message,
+              parse_mode: "HTML",
+            }),
+          }));
+
+          console.log(`📤 ${validPhotoPaths.length} ta rasmni guruhlab yuborilmoqda...`);
+          const results = await bot.sendMediaGroup(CHANNEL_ID, mediaGroup);
+          result = results[0]; // Birinchi xabarning ID sini olish
+
+          console.log(`✅ Telegram'ga ${validPhotoPaths.length} ta rasm yuklandi: ${car.brand} ${car.model}`);
+        } else {
+          // Faqat bitta rasm bo'lsa, sendPhoto ishlatish
+          console.log(`📤 Bitta rasm yuborilmoqda...`);
+          result = await bot.sendPhoto(CHANNEL_ID, validPhotoPaths[0], {
+            caption: message,
+            parse_mode: "HTML",
+          });
+
+          console.log(`✅ Telegram'ga yuklandi: ${car.brand} ${car.model}`);
+        }
 
         // Yangi post ma'lumotini saqlash
         if (!car.telegramPosts) car.telegramPosts = [];
@@ -248,7 +277,7 @@ const postCarToChannel = async (car) => {
 
         return result.message_id;
       } else {
-        console.log(`⚠️ Birinchi rasm topilmadi: ${car.images[0]}`);
+        console.log(`⚠️ Hech qanday rasm topilmadi`);
       }
     }
 
