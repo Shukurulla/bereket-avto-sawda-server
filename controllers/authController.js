@@ -5,9 +5,7 @@ const { t } = require('../i18n');
 
 // Token yaratish
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE || '30d'
-  });
+  return jwt.sign({ id }, process.env.JWT_SECRET);
 };
 
 // @desc    Ro'yxatdan o'tish
